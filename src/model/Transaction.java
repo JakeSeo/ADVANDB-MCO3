@@ -51,7 +51,6 @@ public class Transaction implements TransactionInterface, Runnable
     
     public Connection getConnection()
     {
-        System.out.println("I get connection");
         return conn;
     }
 
@@ -123,13 +122,13 @@ public class Transaction implements TransactionInterface, Runnable
             currentAction++;
             System.out.println("Begin Transaction !");
         }
-        else if(currentAction <= actions.size())
+        else if(currentAction < actions.size())
         {
             actions.get(currentAction).execute();
             currentAction++;
             System.out.println("Do " + actions.get(currentAction - 1).toString() + " !");
         }
-        else
+        else if(currentAction == actions.size())
         {
             endTransaction(end);
             System.out.println("Transactions Ended !");

@@ -50,7 +50,7 @@ public class readAction implements TransAction
 
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setInt(1, id);
-            ps.executeUpdate();
+            ps.executeQuery();
 
             String unlock = "UNLOCK tables;";
             PreparedStatement us = conn.prepareStatement(unlock);
@@ -65,6 +65,11 @@ public class readAction implements TransAction
                 // TODO Auto-generated catch block
                 e.printStackTrace();
         }
+    }
+    
+    public String toString()
+    {
+        return "read(tbl)";
     }
     
 }

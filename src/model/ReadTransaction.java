@@ -9,7 +9,7 @@ import java.sql.Statement;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-public class ReadTransaction implements Transaction, Runnable{
+public class ReadTransaction implements TransactionInterface, Runnable{
 
 	private int timeStamp;
 	Connection conn;
@@ -105,8 +105,7 @@ public class ReadTransaction implements Transaction, Runnable{
 		
 	}
 	
-	@Override
-	public void executeTransaction(int id, int number, int value)
+	public void executeTransaction(int id, int number)
 	{		
 		System.out.println("Running the Query for the Transaction: ");
 		try {
@@ -126,8 +125,7 @@ public class ReadTransaction implements Transaction, Runnable{
 			}
 			
 			PreparedStatement ps = conn.prepareStatement(query);
-			ps.setInt(1, value);
-			ps.setInt(2, id);
+			ps.setInt(1, id);
 			ps.executeUpdate();
 			
 			String unlock = "UNLOCK tables;";
@@ -179,9 +177,14 @@ public class ReadTransaction implements Transaction, Runnable{
 		}
 		System.out.println("Running Reader...");
 		beginTransaction();
-		executeTransaction(id, number, value);
+		executeTransaction(id, number);
 		endTransaction(ending);
 	}
+
+    @Override
+    public Connection getConnection() {
+        return conn;
+    }
 	
 
 }

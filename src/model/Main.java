@@ -2,6 +2,8 @@ package model;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import model.action.readAction;
+import model.action.writeAction;
 
 public class Main {
 
@@ -10,10 +12,13 @@ public class Main {
 		final CyclicBarrier cb = new CyclicBarrier(3);
 		
 		
-		WriteTransaction w = new WriteTransaction(cb, Transaction.READ_UNCOMMITTED, 2,2,2,Transaction.COMMIT);
+		//WriteTransaction w = new WriteTransaction(cb, TransactionInterface.READ_UNCOMMITTED, 2,2,2,TransactionInterface.COMMIT);
+                Transaction t = new Transaction(TransactionInterface.READ_UNCOMMITTED, TransactionInterface.COMMIT);
+                t.addAction(new writeAction(t, 2, 2, 2));
+                t.addAction(new readAction(t, 2, 2));
 		//w.run(2, 1, 1, Transaction.COMMIT);
-		Thread thread1 = new Thread(w);
-		WriteTransaction w2 = new WriteTransaction(cb, Transaction.READ_UNCOMMITTED, 2,1,1,Transaction.COMMIT);
+		Thread thread1 = new Thread(t);
+		WriteTransaction w2 = new WriteTransaction(cb, TransactionInterface.READ_UNCOMMITTED, 2,1,1,TransactionInterface.COMMIT);
 		Thread thread2 = new Thread(w2);
 		
 		thread1.start();

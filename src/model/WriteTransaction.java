@@ -11,7 +11,7 @@ import java.sql.Statement;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-public class WriteTransaction implements Transaction,Runnable{
+public class WriteTransaction implements TransactionInterface,Runnable{
 
 	private int timeStamp;
 	Connection conn;
@@ -107,7 +107,6 @@ public class WriteTransaction implements Transaction,Runnable{
 		
 	}
 	
-	@Override
 	public void executeTransaction(int id, int number, int value)
 	{		
 		System.out.println("Running the Query for the Transaction: ");
@@ -179,7 +178,7 @@ public class WriteTransaction implements Transaction,Runnable{
 
 	@Override
 	public void run() {
-		try {
+		/*try {
 			cb.await();
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
@@ -187,11 +186,16 @@ public class WriteTransaction implements Transaction,Runnable{
 		} catch (BrokenBarrierException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
+		}*/
 		System.out.println("Running Writer...");
 		beginTransaction();
 		executeTransaction(id, number, value);
 		endTransaction(ending);
 	}
+
+    @Override
+    public Connection getConnection() {
+        return conn;
+    }
 	
 }
