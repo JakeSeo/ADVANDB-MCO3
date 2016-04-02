@@ -1,64 +1,56 @@
 package view;
 
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.JTabbedPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.basic.BasicBorders.RadioButtonBorder;
-import javax.swing.table.DefaultTableModel;
 
 import controller.Controller;
-
-import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
-
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.JLabel;
+import javax.swing.border.LineBorder;
+import java.awt.Color;
+import javax.swing.border.MatteBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.border.EtchedBorder;
 import javax.swing.JList;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
 
-public class MainGUI extends JFrame implements ActionListener, KeyListener, MouseListener
+public class MainGUI extends JFrame implements ActionListener, KeyListener, ListSelectionListener
 {
 	private Controller controller;
 	
-	private DefaultComboBoxModel<String> dcbmIsolation, dcbmAction;
 	private DefaultListModel<String> defaultListModel;
-	private DefaultTableModel defaultTableModel;
 	
-	private JButton buttonExecute;
-	private JComboBox<String> cmboxIsolation, cmboxQueryAction;
-	private JLabel labelResults, labelRowsReturned, labelQueryRuntime, labelIsolationLevel, labelQueryAction;
-	private JList<String> listDefaultQueries;
+	private JButton buttonAdd, buttonRemove, buttonExecute;
+	private JList listTransaction;
 	private JPanel jpanel;
-	private JRadioButton rdbtnCustomQuery, rdbtnDefaultQueries;
-	private JScrollPane tableScrollPane, queryScrollPane, defaultQueryScrollPane;
-	private JTable table;
-	private JTextArea textareaQuery;
+	private JScrollPane scrollpanePanel, scrollpaneTransaction;
+	private JTabbedPane tabbedpaneTransactionPanel;
+	private JTextField txtfieldTransactionName;
+
+	private ArrayList<String> transactionNameList;
+	private JLabel labelWarning;
+	private JLabel labelInfo;
 	
-	private final String[] defaultQueries = { "Query 1", "Query 2", "Query 3 Query 3 Query 3 Query 3 Query 3", "Query 4", "Query 5", "Query 6"
-			, "Query 7"};
+	private ArrayList<Integer> selectedTransactions;
+	private ArrayList<List<String>> queryInputs;
 	
 	public MainGUI( Controller controller )
 	{
@@ -84,240 +76,211 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Mous
 		
 		this.controller = controller;
 		
-		jpanel = new JPanel();
+		transactionNameList = new ArrayList<>(0);
+		selectedTransactions = new ArrayList<>(0);
+		queryInputs = new ArrayList<>(0);
+		
+		jpanel =  new JPanel();
+		jpanel.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		jpanel.setSize(1300, 700);
 		jpanel.setLayout(null);
 		
-		defaultTableModel = new DefaultTableModel();
+		TransactionPanel t1 = new TransactionPanel(controller);
+		t1.setName("Transaction 1");
+		transactionNameList.add("Transaction 1");
 		
-		labelResults = new JLabel("Results");
-		labelResults.setFont(new Font("Segoe UI", Font.BOLD, 15));
-		labelResults.setBounds(10, 11, 103, 26);
-		jpanel.add(labelResults);
+		tabbedpaneTransactionPanel = new JTabbedPane(JTabbedPane.TOP);
+		tabbedpaneTransactionPanel.addTab("Transaction 1", t1);
+		scrollpanePanel = new JScrollPane(tabbedpaneTransactionPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollpanePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		scrollpanePanel.setBounds(10, 11, 1274, 510);
+		jpanel.add(scrollpanePanel);
 		
-		table = new JTable(defaultTableModel);
-		table.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-		tableScrollPane = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		tableScrollPane.setBounds(10, 38, 1274, 338);
-		jpanel.add(tableScrollPane);
-		
-		labelRowsReturned = new JLabel("Rows Returned: ");
-		labelRowsReturned.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		labelRowsReturned.setBounds(11, 375, 276, 26);
-		jpanel.add(labelRowsReturned);
-		
-		labelQueryRuntime = new JLabel("Query Runtime: ");
-		labelQueryRuntime.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		labelQueryRuntime.setBounds(654, 375, 377, 26);
-		jpanel.add(labelQueryRuntime);
-		
-		rdbtnCustomQuery = new JRadioButton("Custom Query");
-		rdbtnCustomQuery.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		rdbtnCustomQuery.setBounds(10, 414, 153, 23);
-		rdbtnCustomQuery.addActionListener(this);
-		jpanel.add(rdbtnCustomQuery);
-		
-		textareaQuery = new JTextArea();
-		textareaQuery.setFont(new Font("Courier New", Font.PLAIN, 15));
-		textareaQuery.setEnabled(false);
-		textareaQuery.addKeyListener(this);
-		textareaQuery.addMouseListener(this);
-		queryScrollPane = new JScrollPane(textareaQuery, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		queryScrollPane.setBounds(10, 438, 630, 157);
-		jpanel.add(queryScrollPane);
-		
-		rdbtnDefaultQueries = new JRadioButton("Default Queries");
-		rdbtnDefaultQueries.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		rdbtnDefaultQueries.setBounds(654, 414, 140, 23);
-		rdbtnDefaultQueries.addActionListener(this);
-		jpanel.add(rdbtnDefaultQueries);
-		
-		ButtonGroup radioButtons = new ButtonGroup();
-		radioButtons.add(rdbtnCustomQuery);
-		radioButtons.add(rdbtnDefaultQueries);
+		labelInfo = new JLabel("<html>To select two or more transactions: Hold control while selecting<br>"
+				+ "To deselect transactions: Hold control while selecting</html>");
+		labelInfo.setBounds(11, 523, 384, 38);
+		jpanel.add(labelInfo);
 		
 		defaultListModel = new DefaultListModel<>();
-		addQueryListToListModel();
-		listDefaultQueries = new JList<String>(defaultListModel);
-		listDefaultQueries.setFont(new Font("Courier New", Font.PLAIN, 15));
-		listDefaultQueries.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		listDefaultQueries.setLayoutOrientation(JList.VERTICAL);
-		listDefaultQueries.setEnabled(false);
-		listDefaultQueries.addMouseListener(this);
-		defaultQueryScrollPane = new JScrollPane(listDefaultQueries, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		defaultQueryScrollPane.setBounds(654, 438, 630, 157);
-		jpanel.add(defaultQueryScrollPane);
+		listTransaction = new JList<String>(defaultListModel);
+		listTransaction.setFont(new Font("Courier New", Font.PLAIN, 13));
+		listTransaction.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		listTransaction.setLayoutOrientation(JList.VERTICAL);
+		listTransaction.addListSelectionListener(this);
+		scrollpaneTransaction = new JScrollPane(listTransaction, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollpaneTransaction.setBounds(10, 564, 349, 98);
+		jpanel.add(scrollpaneTransaction);
 		
-		labelIsolationLevel = new JLabel("Isolation Level");
-		labelIsolationLevel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		labelIsolationLevel.setBounds(10, 606, 89, 14);
-		jpanel.add(labelIsolationLevel);
+		txtfieldTransactionName = new JTextField("Transaction Name");
+		txtfieldTransactionName.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		txtfieldTransactionName.setBounds(371, 533, 140, 28);
+		txtfieldTransactionName.setColumns(10);
+		txtfieldTransactionName.addKeyListener(this);
+		jpanel.add(txtfieldTransactionName);
 		
-		String[] isolation = { "Read Uncommitted", "Read Committed", "Repeatable Read", "Serializable" };
-		dcbmIsolation = new DefaultComboBoxModel<>(isolation);
-		cmboxIsolation = new JComboBox<String>(dcbmIsolation);
-		cmboxIsolation.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-		cmboxIsolation.setBounds(109, 601, 140, 22);
-		jpanel.add(cmboxIsolation);
+		labelWarning = new JLabel("<- Transaction name here");
+		labelWarning.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		labelWarning.setBounds(516, 535, 335, 23);
+		jpanel.add(labelWarning);
 		
-		labelQueryAction = new JLabel("Query Action");
-		labelQueryAction.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		labelQueryAction.setBounds(10, 637, 82, 14);
-		jpanel.add(labelQueryAction);
+		buttonAdd = new JButton("Add");
+		buttonAdd.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		buttonAdd.setBounds(371, 570, 140, 23);
+		buttonAdd.addActionListener(this);
+		jpanel.add(buttonAdd);
 		
-		String[] action = { "Commit", "Rollback" };
-		dcbmAction = new DefaultComboBoxModel<>(action);
-		cmboxQueryAction = new JComboBox<String>(dcbmAction);
-		cmboxQueryAction.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-		cmboxQueryAction.setBounds(109, 632, 140, 22);
-		jpanel.add(cmboxQueryAction);
+		buttonRemove = new JButton("Remove");
+		buttonRemove.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		buttonRemove.setBounds(371, 604, 140, 23);
+		buttonRemove.setEnabled(false);
+		buttonRemove.addActionListener(this);
+		jpanel.add(buttonRemove);
 		
-		buttonExecute = new JButton("Execute");
-		buttonExecute.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		buttonExecute.setBounds(259, 600, 89, 54);
+		buttonExecute = new JButton("Execute Transactions");
+		buttonExecute.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		buttonExecute.setBounds(371, 639, 140, 23);
 		buttonExecute.setEnabled(false);
 		buttonExecute.addActionListener(this);
 		jpanel.add(buttonExecute);
 		
 		this.setTitle("ADVANDB MCO3");
 		this.setSize(1300, 700);
-		this.setContentPane(jpanel);
-		getContentPane().setLayout(null);
+		this.setContentPane(jpanel);				
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setVisible(true);
 		this.setResizable(false);
+		
+		updateTransactionList();
 	}
-
-	private void addQueryListToListModel()
+	
+	private void updateTransactionList()
 	{
-		for( int i = 0; i < defaultQueries.length; i++ )
+		defaultListModel = new DefaultListModel<>();
+		
+		for( int i = 0; i < transactionNameList.size(); i++ )
+		{			
+			defaultListModel.addElement(transactionNameList.get(i));
+		}
+		
+		listTransaction.setModel(defaultListModel);
+		
+		this.repaint();
+		this.revalidate();
+	}
+	
+	private void getSelectedIndexes()
+	{
+		List<String> selectedValues = listTransaction.getSelectedValuesList();
+		
+		for( int i = 0; i < selectedValues.size(); i++ )
 		{
-			defaultListModel.addElement(defaultQueries[i]);
+			selectedTransactions.add(transactionNameList.indexOf(selectedValues.get(i)));
 		}
 	}
 	
-	private void populateTable()
-	{
-		
-	}
-	
-	// ACTION LISTENER
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if( e.getSource() == rdbtnCustomQuery )
+		if( e.getSource() == buttonAdd )
 		{
-			textareaQuery.setEnabled(true);
-			listDefaultQueries.setEnabled(false);
-			buttonExecute.setEnabled(true);
+			String name = txtfieldTransactionName.getText().toString();
+			if( !name.isEmpty() )
+			{
+				TransactionPanel t1 = new TransactionPanel(controller);
+				t1.setName(name);
+				transactionNameList.add(name);
+				
+				tabbedpaneTransactionPanel.addTab(name, t1);
+				
+				updateTransactionList();
+				
+				txtfieldTransactionName.setText("");
+				buttonAdd.setEnabled(false);
+			}
+			else
+			{
+				labelWarning.setText("Transaction names must not be empty and must be unique!");
+				labelWarning.setForeground(Color.RED);
+			}
 		}
-		else if( e.getSource() == rdbtnDefaultQueries )
+		else if( e.getSource() == buttonRemove )
 		{
-			textareaQuery.setEnabled(false);
-			listDefaultQueries.setEnabled(true);
+			tabbedpaneTransactionPanel.remove(listTransaction.getSelectedIndex());
+			
+			transactionNameList.remove(listTransaction.getSelectedValue().toString());
+			
+			updateTransactionList();
 		}
 		else if( e.getSource() == buttonExecute )
 		{
-			if( rdbtnCustomQuery.isSelected() )
+			getSelectedIndexes();
+			queryInputs = new ArrayList<>(0);
+			for( int i = 0; i < selectedTransactions.size(); i++ )
 			{
-				controller.READ(textareaQuery.getText());
+				queryInputs.add(((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getInput());
 			}
-			else if( rdbtnDefaultQueries.isSelected() )
+			
+			for( int i = 0; i < queryInputs.size(); i++ )
 			{
-				
+				for( int j = 0; j < queryInputs.get(i).size(); j++ )
+				{
+					System.out.println(queryInputs.get(i).get(j));
+				}
+				System.out.println();
 			}
 		}
-		
-	}
-
-	// KEY LISTENER
-	@Override
-	public void keyPressed(KeyEvent e)
-	{
-		checkCustomQueryInput();
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e)
+	public void valueChanged(ListSelectionEvent e)
 	{
-		checkCustomQueryInput();
+		if( e.getValueIsAdjusting() == false )
+		{
+			if( listTransaction.getSelectedIndex() != -1 )
+			{
+				buttonRemove.setEnabled(true);
+				buttonExecute.setEnabled(true);
+			}
+			else
+			{
+				buttonRemove.setEnabled(false);
+				buttonExecute.setEnabled(false);
+			}
+		}
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e)
+	public void keyPressed(KeyEvent arg0)
 	{
-		checkCustomQueryInput();
+		checkForDuplicateName();
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0)
+	{
+		checkForDuplicateName();
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0)
+	{
+		checkForDuplicateName();
 	}
 	
-	private void checkCustomQueryInput()
+	private void checkForDuplicateName()
 	{
-		if( textareaQuery.getText().isEmpty() && rdbtnCustomQuery.isSelected() )
+		if( !txtfieldTransactionName.getText().isEmpty() && transactionNameList.contains(txtfieldTransactionName.getText().toString()) ) 
 		{
-			buttonExecute.setEnabled(false);
+			buttonAdd.setEnabled(false);
+			labelWarning.setText("Transaction names must not be empty and must be unique!");
+			labelWarning.setForeground(Color.RED);
 		}
 		else
 		{
-			buttonExecute.setEnabled(true);
-		}
-	}
-	
-	// MOUSE LISTENER
-	@Override
-	public void mouseClicked(MouseEvent e)
-	{
-		setEnabledComponents(e);
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0){}
-
-	@Override
-	public void mouseExited(MouseEvent arg0){}
-
-	@Override
-	public void mousePressed(MouseEvent e)
-	{
-		setEnabledComponents(e);
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent arg0){}
-	
-	private void setEnabledComponents( MouseEvent e )
-	{
-		if( e.getSource() == textareaQuery )
-		{
-			rdbtnCustomQuery.setSelected(true);
-			textareaQuery.setEnabled(true);
-			listDefaultQueries.setEnabled(false);
-			textareaQuery.requestFocus();
-			
-			checkQueryInputs();
-		}
-		else if( e.getSource() == listDefaultQueries )
-		{
-			rdbtnDefaultQueries.setSelected(true);
-			textareaQuery.setEnabled(false);
-			listDefaultQueries.setEnabled(true);
-			
-			checkQueryInputs();
-		}
-	}
-	
-	private void checkQueryInputs()
-	{
-		if( rdbtnCustomQuery.isSelected() && !textareaQuery.getText().isEmpty() )
-		{
-			buttonExecute.setEnabled(true);
-		}
-		else if( rdbtnDefaultQueries.isSelected() && listDefaultQueries.getSelectedIndex() != -1 )
-		{
-			buttonExecute.setEnabled(true);
-		}
-		else
-		{
-			buttonExecute.setEnabled(false);
+			buttonAdd.setEnabled(true);
+			labelWarning.setText("<- Transaction name here");
+			labelWarning.setForeground(Color.BLACK);
 		}
 	}
 }
