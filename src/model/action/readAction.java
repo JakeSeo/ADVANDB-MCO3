@@ -7,6 +7,7 @@ package model.action;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import model.Transaction;
 
@@ -31,6 +32,7 @@ public class readAction implements TransAction
     @Override
     public void execute() {
         System.out.println("Running the Query for the Transaction: ");
+        ResultSet rs = null;
         try 
         {
             String lock = "LOCK table tbl READ";
@@ -50,7 +52,7 @@ public class readAction implements TransAction
 
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setInt(1, id);
-            ps.executeQuery();
+            rs = ps.executeQuery();
 
             String unlock = "UNLOCK tables;";
             PreparedStatement us = conn.prepareStatement(unlock);
@@ -65,6 +67,47 @@ public class readAction implements TransAction
                 // TODO Auto-generated catch block
                 e.printStackTrace();
         }
+    }
+    
+    public ResultSet executeRead() {
+        System.out.println("Running the Query for the Transaction: ");
+        ResultSet rs = null;
+        try 
+        {
+            String lock = "LOCK table tbl READ";
+            PreparedStatement ls = conn.prepareStatement(lock);
+            ls.execute();
+            String query = null;
+
+            switch(number)
+            {
+                    case 1: query = "SELECT id,num1 FROM tbl WHERE id = ?";
+                                    break;
+                    case 2: query = "SELECT id,num2 FROM tbl WHERE id = ?";
+                                    break;
+                    default: query = "SELECT * FROM tbl";
+                                    break;
+            }
+
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, id);
+            rs = ps.executeQuery();
+
+            String unlock = "UNLOCK tables;";
+            PreparedStatement us = conn.prepareStatement(unlock);
+            us.execute();
+
+            ls.close();
+            ps.close();
+            us.close();
+            System.out.println("Done Reading!");
+       
+
+        } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+        }
+        return rs;
     }
     
     public String toString()

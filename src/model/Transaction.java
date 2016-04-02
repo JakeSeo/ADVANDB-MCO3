@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import static model.TransactionInterface.READ_UNCOMMITTED;
 import static model.TransactionInterface.REPEATABLE_READS;
 import static model.TransactionInterface.SERIALIZABLE;
 import model.action.TransAction;
+import model.action.readAction;
 
 /**
  *
@@ -27,6 +29,7 @@ import model.action.TransAction;
  */
 public class Transaction implements TransactionInterface, Runnable 
 {
+	private String name;
     private int timeStamp;
     private Connection conn;
     private DBConnection dbConnect;
@@ -38,9 +41,11 @@ public class Transaction implements TransactionInterface, Runnable
     private int id, number, value, end;
     private ArrayList<TransAction> actions;
     private int currentAction;
+    private ArrayList<ResultSet> results;
     
     public Transaction(CyclicBarrier cb,int isolationLvl, int end)
     {
+    	this.name = "name";
     	this.cb = cb;
         this.isolationLvl = isolationLvl;
         this.end = end;
@@ -50,6 +55,21 @@ public class Transaction implements TransactionInterface, Runnable
         dbConnect = new DBConnection();
         conn = dbConnect.getConnection();
     }
+    
+    public String getName() {
+    	return name;
+    }
+    
+    public ArrayList<TransAction> getActions()
+    {
+    	return actions;
+    }
+    
+    public ArrayList<ResultSet> getResult()
+    {
+    	return results;
+    }
+    
     
     public Connection getConnection()
     {
@@ -126,7 +146,10 @@ public class Transaction implements TransactionInterface, Runnable
         }
         else if(currentAction < actions.size())
         {
-            actions.get(currentAction).execute();
+        	if(actions.get(currentAction).getClass() == readAction.class)
+        		results.add(((readAction)actions.get(currentAction)).executeRead());
+        	else
+        		actions.get(currentAction).execute();
             currentAction++;
             if(currentAction < actions.size())
             System.out.println("Do " + actions.get(currentAction).toString() + " !");
@@ -165,7 +188,7 @@ public class Transaction implements TransactionInterface, Runnable
 
 	@Override
 	public void run() {
-		try {
+		/*try {
 			cb.await();
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
@@ -173,7 +196,7 @@ public class Transaction implements TransactionInterface, Runnable
 		} catch (BrokenBarrierException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
+		}*/
 		System.out.println("Running Writer...");
         for(int i = 0; i <= actions.size()+1; i++)
         {

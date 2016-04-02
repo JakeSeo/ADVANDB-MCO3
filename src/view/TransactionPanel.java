@@ -210,7 +210,7 @@ public class TransactionPanel extends JPanel implements ActionListener, KeyListe
 		}
 	}
 	
-	private void populateTable( ArrayList<String> columns, Object[][] rows )
+	public void populateTable( ArrayList<String> columns, Object[][] rows )
 	{
 		defaultTableModel = new DefaultTableModel(rows, columns.toArray(new String[0]));
 		table.setModel(defaultTableModel);

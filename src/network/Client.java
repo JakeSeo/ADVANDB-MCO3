@@ -14,8 +14,9 @@ public class Client {
 	private Controller c;
 	 public Client(Controller c, Socket X)
 	 {
-		  	RECEIVE(X); // pinasa na yung socket :)
 		  	this.c = c;
+		  	RECEIVE(X); // pinasa na yung socket :)
+
 	 }
 
 
@@ -51,11 +52,14 @@ public class Client {
 				if(InputCommand.substring(0, 7).equals("\"READ\" "))
 				{
 					System.out.println("Client receive (enter READ)");
+					//c.ReadingAction(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,7).getBytes().length, current), "localhost");
 					c.ReadingAction(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,7).getBytes().length, current), "localhost");
+					
 				}
 			}
 			catch(Exception x){
-				System.out.println(x);
+				x.printStackTrace();
+				
 			}
 	 }	 
 }

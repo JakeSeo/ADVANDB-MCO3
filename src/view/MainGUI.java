@@ -214,6 +214,8 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 		}
 		else if( e.getSource() == buttonExecute )
 		{
+			//controller.READ(queryInputs);
+			
 			getSelectedIndexes();
 			queryInputs = new ArrayList<>(0);
 			for( int i = 0; i < selectedTransactions.size(); i++ )
@@ -223,6 +225,13 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 //				((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getIsolationLevel();
 //				((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getQueryAction();
 			}
+			
+			controller.READ(((TransactionPanel) tabbedpaneTransactionPanel.getComponent(0)).getInput());
+
+			//populate the table here
+			
+			
+//			((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getDatabase(););
 			
 //			Display returned query input data
 //			for( int i = 0; i < queryInputs.size(); i++ )
