@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import static model.TransactionInterface.READ_COMMITTED;
 import static model.TransactionInterface.READ_UNCOMMITTED;
@@ -38,8 +39,9 @@ public class Transaction implements TransactionInterface, Runnable
     private ArrayList<TransAction> actions;
     private int currentAction;
     
-    public Transaction(int isolationLvl, int end)
+    public Transaction(CyclicBarrier cb,int isolationLvl, int end)
     {
+    	this.cb = cb;
         this.isolationLvl = isolationLvl;
         this.end = end;
         this.actions = new ArrayList<TransAction>();
@@ -126,7 +128,8 @@ public class Transaction implements TransactionInterface, Runnable
         {
             actions.get(currentAction).execute();
             currentAction++;
-            System.out.println("Do " + actions.get(currentAction - 1).toString() + " !");
+            if(currentAction < actions.size())
+            System.out.println("Do " + actions.get(currentAction).toString() + " !");
         }
         else if(currentAction == actions.size())
         {
@@ -160,7 +163,30 @@ public class Transaction implements TransactionInterface, Runnable
         actions.add(action);
     }
 
-    @Override
+	@Override
+	public void run() {
+		try {
+			cb.await();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (BrokenBarrierException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.out.println("Running Writer...");
+        for(int i = 0; i <= actions.size()+1; i++)
+        {
+        	if(i <actions.size())
+            System.out.println(actions.get(i).toString());
+            System.out.println("Current Action: " + (currentAction));
+            executeAction();
+                
+        }
+	}
+
+    
+    /*@Override
     public void run() {
         Scanner sc = new Scanner(System.in);
         while(true)
@@ -177,6 +203,6 @@ public class Transaction implements TransactionInterface, Runnable
             executeAction();
             
         }
-    }
-    
+    }*/
+
 }
