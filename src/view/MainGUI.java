@@ -221,7 +221,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, Mous
 		{
 			if( rdbtnCustomQuery.isSelected() )
 			{
-				
+				controller.READ(textareaQuery.getText());
 			}
 			else if( rdbtnDefaultQueries.isSelected() )
 			{

@@ -347,17 +347,6 @@ public class cDriver extends JFrame implements ActionListener {
 		FileSendWindow.setVisible(false);
 	}
 	
-	public static void main(String[] args){
-		
-		// Starting the Server
-		Server SER = new Server(PORT);
-		Thread X = new Thread(SER);
-		X.start();	// Runs the server process
-		
-		// Login asking for username and profile picture
-		loginWindow();
-	}
-	
 // WINDOWS
 		
 	// Login window

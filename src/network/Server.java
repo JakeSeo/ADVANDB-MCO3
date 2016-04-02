@@ -3,13 +3,17 @@ package network;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import controller.Controller;
+
 public class Server implements Runnable {
 
 	int port;
 	static Client c;
+	Controller controller;
 	
-	public Server(int port)
+	public Server(Controller controller, int port)
 	{
+		this.controller = controller;
 		this.port = port;
 	}
 	
@@ -22,7 +26,7 @@ public class Server implements Runnable {
 
 				while(true){	// Waits for connections
 					Socket X = SS.accept(); 	// Accepts connections
-					c = new Client(X); 			// Creates a new client for each connection
+					c = new Client(controller, X); 			// Creates a new client for each connection
 					System.out.println("Server (new client)");
 				}
 			}

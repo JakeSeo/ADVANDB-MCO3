@@ -11,10 +11,11 @@ import javax.swing.JOptionPane;
 import controller.Controller;
 
 public class Client {
-	
-	 public Client(Socket X)
+	private Controller c;
+	 public Client(Controller c, Socket X)
 	 {
-		  	RECEIVE(X); // pinasa na yung socket :)		  	
+		  	RECEIVE(X); // pinasa na yung socket :)
+		  	this.c = c;
 	 }
 
 
@@ -50,7 +51,7 @@ public class Client {
 				if(InputCommand.substring(0, 7).equals("\"READ\" "))
 				{
 					System.out.println("Client receive (enter READ)");
-					Controller.ReadingAction(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,7).getBytes().length, current), "localhost");
+					c.ReadingAction(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,7).getBytes().length, current), "localhost");
 				}
 			}
 			catch(Exception x){

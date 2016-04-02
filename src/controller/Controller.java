@@ -1,9 +1,11 @@
 package controller;
 
 import java.awt.FlowLayout;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
@@ -11,15 +13,29 @@ import java.util.concurrent.CyclicBarrier;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import model.Node;
 import model.Transaction;
 
 public class Controller
 {
 	// database manager?
 	String type;
-	static ArrayList<String> OnlineIPs = new ArrayList<String>();
-	static ArrayList<String> OnlineNames = new ArrayList<String>();
+	Node central;
+	Node marin;
+	Node palawan;
 	final static int Port = 1234;
+	
+	public Node getCentral() {
+		return central;
+	}
+	
+	public Node getMarin() {
+		return marin;
+	}
+	
+	public Node getPalawan() {
+		return palawan;
+	}
 	
 	public Controller(String type)
 	{
@@ -34,17 +50,25 @@ public class Controller
 	
 	public void add(String ip, String name)
 	{
-		OnlineIPs.add(ip);
-		OnlineNames.add(name);
+		if(name.equals("Marinduque")) {
+			marin.setIpadd(ip);
+			marin.setName(name);
+		} else if(name.equals("Palawan")) {
+			palawan.setIpadd(ip);
+			palawan.setName(name);
+		} else if(name.equals("Central")) {
+			central.setIpadd(ip);
+			central.setName(name);
+		}
 	}
 	
 	// Send POST notification
-	public static void READ(String message)
+	public void READ(String message)
 	{
 		System.out.println("READ (start)");
 		Socket SOCK;
 		try {
-			SOCK = new Socket(OnlineIPs.get(0), Port);					// Open socket
+			SOCK = new Socket(central.getIpadd(), Port);					// Open socket
 			PrintWriter OUT = new PrintWriter(SOCK.getOutputStream());
 			OUT.println("\"READ\" " + message + "\0"); 					// Send message
 			OUT.flush();		
@@ -53,12 +77,42 @@ public class Controller
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			if(type.equals("Marinduque")) {
+				try {
+					SOCK = new Socket(palawan.getIpadd(), Port);
+					PrintWriter OUT = new PrintWriter(SOCK.getOutputStream());
+					OUT.println("\"READ\" " + message + "\0"); 					// Send message
+					OUT.flush();		
+					SOCK.close(); 
+				} catch (UnknownHostException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			} else {
+				try {
+					SOCK = new Socket(marin.getIpadd(), Port);
+					PrintWriter OUT = new PrintWriter(SOCK.getOutputStream());
+					OUT.println("\"READ\" " + message + "\0"); 					// Send message
+					OUT.flush();		
+					SOCK.close(); 
+				} catch (UnknownHostException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
 		} 
 		System.out.println("READ (end)");
 	 }
 
 	// Receive POST notification
-		public static void ReadingAction(String ip, byte [] bytes, String senderip)
+		public void ReadingAction(String ip, byte [] bytes, String senderip)
 		{
 			System.out.println("ReadAction (start)");
 			
@@ -84,7 +138,7 @@ public class Controller
 		
 
 		// Returns string cut off at either space, null or eof, depending on c
-		public static String getUntilSpaceOrNull(String bytesinstring, char c){
+		public String getUntilSpaceOrNull(String bytesinstring, char c){
 			System.out.println("getUntilSpaceOrNull");
 			
 			int i = 0;											// Character index

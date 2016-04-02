@@ -15,12 +15,12 @@ public class Driver
 	public static void main(String[] args){
 		
 		// Starting the Server
-		Server SER = new Server(PORT);
+		Controller con = new Controller("Palawan");
+		Server SER = new Server(con, PORT);
 		Thread X = new Thread(SER);
 		X.start();	// Runs the server process
 		
-		Controller con = new Controller("Central");
-		con.add("192.168.1.102", "Palawan");
+		con.add("192.168.1.138", "Central");
 		MainGUI mainGUI = new MainGUI(con);
 	}
 }
