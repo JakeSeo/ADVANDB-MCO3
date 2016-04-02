@@ -259,6 +259,36 @@ public class TransactionPanel extends JPanel implements ActionListener, KeyListe
 		return new ArrayList<String>();
 	}
 	
+	public String getDatabase()
+	{
+		if ( ckboxCentral.isSelected() )
+		{
+			return ckboxCentral.getText().toString();
+		}
+		else if ( ckboxMarinduque.isSelected() )
+		{
+			return ckboxMarinduque.getText().toString();
+		}
+		else if ( ckboxPalawan.isSelected() )
+		{
+			return ckboxPalawan.getText().toString();
+		}
+		else
+		{
+			return "";
+		}
+	}
+	
+	public String getIsolationLevel()
+	{
+		return cmboxIsolation.getSelectedItem().toString();
+	}
+	
+	public String getQueryAction()
+	{
+		return cmboxQueryAction.getSelectedItem().toString();
+	}
+	
 	// ACTION LISTENER
 	@Override
 	public void actionPerformed(ActionEvent e)

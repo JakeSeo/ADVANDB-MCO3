@@ -219,16 +219,20 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 			for( int i = 0; i < selectedTransactions.size(); i++ )
 			{
 				queryInputs.add(((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getInput());
+//				((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getDatabase();
+//				((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getIsolationLevel();
+//				((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getQueryAction();
 			}
 			
-			for( int i = 0; i < queryInputs.size(); i++ )
-			{
-				for( int j = 0; j < queryInputs.get(i).size(); j++ )
-				{
-					System.out.println(queryInputs.get(i).get(j));
-				}
-				System.out.println();
-			}
+//			Display returned query input data
+//			for( int i = 0; i < queryInputs.size(); i++ )
+//			{
+//				for( int j = 0; j < queryInputs.get(i).size(); j++ )
+//				{
+//					System.out.println(queryInputs.get(i).get(j));
+//				}
+//				System.out.println();
+//			}
 		}
 	}
 
