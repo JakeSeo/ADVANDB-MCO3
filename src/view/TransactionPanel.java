@@ -364,8 +364,6 @@ public class TransactionPanel extends JPanel implements ActionListener
 			ckboxRead.setSelected(true);
 			ckboxWrite.setSelected(true);
 		}
-		
-		
 	}
 	
 	public void removeCondition( ConditionPanel conditionPanel )

@@ -60,22 +60,25 @@ public class ConditionPanel extends JPanel implements ActionListener
 		
 		dcbmColumn = new DefaultComboBoxModel<>(columns);
 		cmboxColumn = new JComboBox<String>(dcbmColumn);
+		cmboxColumn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		cmboxColumn.setBounds(10, 11, 150, 30);
 		this.add(cmboxColumn);
 		
 		dcbmOperator = new DefaultComboBoxModel<>(operators);
 		cmboxOperator = new JComboBox<String>(dcbmOperator);
+		cmboxOperator.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		cmboxOperator.setBounds(170, 11, 122, 30);
 		((JLabel)cmboxOperator.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
 		this.add(cmboxOperator);
 		
 		textfieldInput = new JTextField();
-		textfieldInput.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+		textfieldInput.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		textfieldInput.setBounds(302, 11, 140, 30);
 		this.add(textfieldInput);
 		textfieldInput.setColumns(10);	
 		
 		buttonRemove = new JButton("x");
+		buttonRemove.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		buttonRemove.setBounds(452, 10, 45, 30);
 		buttonRemove.addActionListener(this);
 		this.add(buttonRemove);
