@@ -16,7 +16,6 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.JButton;
-import java.awt.Font;
 
 public class ConditionPanel extends JPanel implements ActionListener
 {
@@ -54,32 +53,26 @@ public class ConditionPanel extends JPanel implements ActionListener
 		}
 		
 		this.transactionPanel = transactionPanel;
-		
 		this.setLayout(null);
-		this.setSize(506, 52);
 		
 		dcbmColumn = new DefaultComboBoxModel<>(columns);
 		cmboxColumn = new JComboBox<String>(dcbmColumn);
-		cmboxColumn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		cmboxColumn.setBounds(10, 11, 150, 30);
+		cmboxColumn.setBounds(10, 11, 150, 25);
 		this.add(cmboxColumn);
 		
 		dcbmOperator = new DefaultComboBoxModel<>(operators);
 		cmboxOperator = new JComboBox<String>(dcbmOperator);
-		cmboxOperator.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		cmboxOperator.setBounds(170, 11, 122, 30);
+		cmboxOperator.setBounds(170, 11, 122, 25);
 		((JLabel)cmboxOperator.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
 		this.add(cmboxOperator);
 		
 		textfieldInput = new JTextField();
-		textfieldInput.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		textfieldInput.setBounds(302, 11, 140, 30);
+		textfieldInput.setBounds(302, 11, 140, 25);
 		this.add(textfieldInput);
 		textfieldInput.setColumns(10);	
 		
 		buttonRemove = new JButton("x");
-		buttonRemove.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		buttonRemove.setBounds(452, 10, 45, 30);
+		buttonRemove.setBounds(452, 10, 45, 25);
 		buttonRemove.addActionListener(this);
 		this.add(buttonRemove);
 	}
