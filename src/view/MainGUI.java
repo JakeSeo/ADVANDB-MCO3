@@ -227,6 +227,9 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 			getSelectedIndexes();
 			for( int i = 0; i < selectedTransactions.size(); i++ )
 			{
+				// to get query:
+				// ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getQuery();
+				
 				System.out.println(selectedTransactions.size() + "asdfasdfasdfasd");
 				String name = ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getTransactionName();
 				
