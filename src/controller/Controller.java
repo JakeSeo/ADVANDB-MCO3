@@ -12,8 +12,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import com.sun.rowset.CachedRowSetImpl;
+import java.util.List;
 
+import com.sun.rowset.CachedRowSetImpl;
+import java.util.concurrent.CyclicBarrier;
+
+import model.DBModel;
 import model.Node;
 import model.TableContents;
 import model.Transaction;
@@ -28,7 +32,9 @@ public class Controller {
 	Node palawan;
 	final static int Port = 1234;
 	ArrayList<Transaction> transactions;
+	DBModel dbm;
 	MainGUI view;
+        CyclicBarrier cb;
 
 	public Controller(String ip, String type) {
 		transactions = new ArrayList<Transaction>();
@@ -37,6 +43,8 @@ public class Controller {
 		palawan = new Node();
 		marin = new Node();
 		central = new Node();
+		dbm = new DBModel();
+                cb = new CyclicBarrier(1);
 	}
 
 	public Node getCentral() {
@@ -58,6 +66,11 @@ public class Controller {
 	public String getType() {
 		return type;
 	}
+        
+        public void setCyclicBarrierSize(int size)
+        {
+		cb = new CyclicBarrier(size);
+        }
 
 	public void add(String ip, String name) {
 		if (name.equals("Marinduque")) {
@@ -72,13 +85,26 @@ public class Controller {
 		}
 	}
 	
+	public void executeQuery(Transaction t, String ip)
+	{
+		if(this.ip.equals(ip)) {
+			// local trans.
+			
+		} else {
+			TransactionThread tt = new TransactionThread(t, this, ip, cb);
+			tt.run();
+		}
+	}
 
 	public void sendTransaction(String name, String query, int isolationLvl, int end) {
-		Transaction t = new Transaction(name, query, isolationLvl, end);
-
-		if (type.equals("Central")) {
-			TransactionThread tt = new TransactionThread(t, this, ip);
-			tt.run();
+                Transaction t = new Transaction(name, query, isolationLvl, end);
+		if (type.equals("Central")) 
+                {
+                    System.out.println(t.toString()); // query locally here.
+                    TransactionThread tt = new TransactionThread(t, this, ip, cb);
+                    new Thread(tt).start();
+                    
+                        
 		} else {
 			Socket SOCK;
 			String ip = central.getIpadd();
@@ -134,9 +160,10 @@ public class Controller {
 			
 			System.out.println("");
 			
+			executeQuery(t, senderIp);
 			
-			TransactionThread tThread = new TransactionThread(t, this, senderIp); 
-			tThread.run();
+			/*TransactionThread tThread = new TransactionThread(t, this, senderIp); 
+			tThread.run();*/
 			
 		}
 		catch(Exception e){
@@ -227,8 +254,7 @@ public class Controller {
 	}
 	
 	public void updateTable(TableContents tc) {
-
-		// view.updateTable(tc); 		
+		// view.updateTable(tc);
 		view.populateTable(tc.getTransactionName(), tc.getColumnNames(), getTableRows(tc));
 	}
 	
@@ -242,7 +268,7 @@ public class Controller {
 				Object[] rowdata = new Object[tc.getColumnNames().length];
 
 				for (int i = 0; i < tc.getColumnNames().length; i++) {
-					rowdata[i] = cas.getObject(i + 1);
+                                    rowdata[i] = cas.getObject(i + 1);
 				}
 				tempRowData.add(rowdata);
 			}

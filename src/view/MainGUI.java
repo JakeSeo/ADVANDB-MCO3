@@ -176,7 +176,8 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 	private void getSelectedIndexes()
 	{
 		List<String> selectedValues = listTransaction.getSelectedValuesList();
-		selectedTransactions = new ArrayList<Integer>();
+		selectedTransactions = new ArrayList<>(0);
+		
 		for( int i = 0; i < selectedValues.size(); i++ )
 		{
 			selectedTransactions.add(transactionNameList.indexOf(selectedValues.get(i)));
@@ -225,21 +226,13 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 		else if( e.getSource() == buttonExecute )
 		{
 			getSelectedIndexes();
+            controller.setCyclicBarrierSize(selectedTransactions.size());
+            System.out.println("Transactions: " + selectedTransactions.size());
 			for( int i = 0; i < selectedTransactions.size(); i++ )
 			{
-				System.out.println(selectedTransactions.size() + "asdfasdfasdfasd");
-				String name = ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getTransactionName();
-				
-				String query = "select * from hpq_crop WHERE hpq_hh_id = 11333;";/*((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getQuery();*/
-				if(i == 1)
-				{
-					query = "select id,crop_line from hpq_crop WHERE hpq_hh_id = 11333;";
-				} 
-				else if(i==2)
-				{
-					query = "select id, croptype, croptype_o from hpq_crop WHERE hpq_hh_id = 11333;";
-				}
-				
+				String name = ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(selectedTransactions.get(i))).getTransactionName();
+			                    System.out.println("Index: " + name);
+				String query = ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getQuery();
 				controller.sendTransaction(name, query, 1, 1);
 			}
 		}
