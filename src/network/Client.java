@@ -49,13 +49,18 @@ public class Client {
 			    System.out.println("Client receive (input string start: " + InputCommand.substring(0,5) + ")");
 				
 			   
-				if(InputCommand.substring(0, 7).equals("\"READ\" "))
+				if(InputCommand.substring(0, 14).equals("\"TRANSACTION\" "))
 				{
 					System.out.println("Client receive (enter READ)");
-					//c.ReadingAction(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,7).getBytes().length, current), "localhost");
-					c.ReadingAction(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,7).getBytes().length, current), "localhost");
-					
+					c.receiveTransaction(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,14).getBytes().length, current), "localhost");	
+				} else if(InputCommand.substring(0, 20).equals("\"SENDTABLECONTENTS\" ")) {
+					c.receiveTableContents(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,20).getBytes().length, current));
 				}
+//				if(InputCommand.substring(0, 16).equals("\"SENDRESULTSET\" "))
+//				{
+//					System.out.println("Client receive (enter SENDRESULTSET)");
+//				 	c.FileAction(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,16).getBytes().length, current));
+//				}
 			}
 			catch(Exception x){
 				x.printStackTrace();

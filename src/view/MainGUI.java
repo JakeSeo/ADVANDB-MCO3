@@ -21,6 +21,8 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import controller.Controller;
+import model.TableContents;
+
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import javax.swing.border.MatteBorder;
@@ -39,7 +41,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 	private DefaultListModel<String> defaultListModel;
 	
 	private JButton buttonAdd, buttonRemove, buttonExecute;
-	private JList listTransaction;
+	private JList<String> listTransaction;
 	private JPanel jpanel;
 	private JScrollPane scrollpanePanel, scrollpaneTransaction;
 	private JTabbedPane tabbedpaneTransactionPanel;
@@ -50,7 +52,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 	private JLabel labelInfo;
 	
 	private ArrayList<Integer> selectedTransactions;
-	private ArrayList<List<String>> queryInputs;
+	private ArrayList<String> queryInputs;
 	
 	public MainGUI( Controller controller )
 	{
@@ -75,6 +77,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 		}
 		
 		this.controller = controller;
+		this.controller.setView(this);
 		
 		transactionNameList = new ArrayList<>(0);
 		selectedTransactions = new ArrayList<>(0);
@@ -87,6 +90,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 		
 		TransactionPanel t1 = new TransactionPanel(controller);
 		t1.setName("Transaction 1");
+		t1.setTransactionName("Transaction 1");
 		transactionNameList.add("Transaction 1");
 		
 		tabbedpaneTransactionPanel = new JTabbedPane(JTabbedPane.TOP);
@@ -172,11 +176,16 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 	private void getSelectedIndexes()
 	{
 		List<String> selectedValues = listTransaction.getSelectedValuesList();
-		
+		selectedTransactions = new ArrayList<Integer>();
 		for( int i = 0; i < selectedValues.size(); i++ )
 		{
 			selectedTransactions.add(transactionNameList.indexOf(selectedValues.get(i)));
 		}
+	}
+	
+	public void populateTable( String transactionName, String[] columns, Object[][] rows )
+	{
+		((TransactionPanel) tabbedpaneTransactionPanel.getComponent(transactionNameList.indexOf(transactionName))).populateTable(columns, rows);
 	}
 	
 	@Override
@@ -189,6 +198,7 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 			{
 				TransactionPanel t1 = new TransactionPanel(controller);
 				t1.setName(name);
+				t1.setTransactionName(name);
 				transactionNameList.add(name);
 				
 				tabbedpaneTransactionPanel.addTab(name, t1);
@@ -214,34 +224,24 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 		}
 		else if( e.getSource() == buttonExecute )
 		{
-			//controller.READ(queryInputs);
-			
 			getSelectedIndexes();
-			queryInputs = new ArrayList<>(0);
 			for( int i = 0; i < selectedTransactions.size(); i++ )
 			{
-				queryInputs.add(((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getInput());
-//				((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getDatabase();
-//				((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getIsolationLevel();
-//				((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getQueryAction();
+				System.out.println(selectedTransactions.size() + "asdfasdfasdfasd");
+				String name = ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getTransactionName();
+				
+				String query = "select * from hpq_crop WHERE hpq_hh_id = 11333;";/*((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getQuery();*/
+				if(i == 1)
+				{
+					query = "select id,crop_line from hpq_crop WHERE hpq_hh_id = 11333;";
+				} 
+				else if(i==2)
+				{
+					query = "select id, croptype, croptype_o from hpq_crop WHERE hpq_hh_id = 11333;";
+				}
+				
+				controller.sendTransaction(name, query, 1, 1);
 			}
-			
-			controller.READ(((TransactionPanel) tabbedpaneTransactionPanel.getComponent(0)).getInput());
-
-			//populate the table here
-			
-			
-//			((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getDatabase(););
-			
-//			Display returned query input data
-//			for( int i = 0; i < queryInputs.size(); i++ )
-//			{
-//				for( int j = 0; j < queryInputs.get(i).size(); j++ )
-//				{
-//					System.out.println(queryInputs.get(i).get(j));
-//				}
-//				System.out.println();
-//			}
 		}
 	}
 

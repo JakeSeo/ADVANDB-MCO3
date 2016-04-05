@@ -31,10 +31,12 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
@@ -43,25 +45,21 @@ import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
 import javax.swing.JCheckBox;
 
-public class TransactionPanel extends JPanel implements ActionListener, KeyListener, MouseListener
+public class TransactionPanel extends JPanel implements ActionListener
 {
 	private Controller controller;
 	
 	private DefaultComboBoxModel<String> dcbmIsolation, dcbmAction;
-	private DefaultListModel<String> defaultListModel;
 	private DefaultTableModel defaultTableModel;
-	private JCheckBox ckboxCentral, ckboxMarinduque, ckboxPalawan;
-	private JComboBox<String> cmboxIsolation, cmboxQueryAction;
-	private JLabel labelResults, labelRowsReturned, labelQueryRuntime, labelDatabase, labelIsolationLevel, labelQueryAction;
-	private JList<String> listDefaultQuery;
-	private JRadioButton rdbtnCustomQuery, rdbtnDefaultQueries;
-	private JScrollPane scrollpaneTable, scrollpaneCustomQuery, scrollpaneDefaultQuery;
-	private JTabbedPane tabbedpaneCustomQuery;
-	private JTable table;
-	private JTextArea textareaQuery;
 	
-	private final String[] defaultQueries = { "Query 1", "Query 2", "Query 3 Query 3 Query 3 Query 3 Query 3", "Query 4", "Query 5", "Query 6"
-			, "Query 7"};
+	private JButton buttonAddCondition;
+	private JComboBox<String> cmboxIsolation, cmboxQueryAction;
+	private JLabel labelResults, labelRowsReturned, labelQueryRuntime, labelHpqcropQueryConditions, labelIsolationLevel, labelQueryAction;
+	private JPanel panelConditions;
+	private JScrollPane scrollpaneTable, scrollpaneCondition;
+	private JTable table;
+	
+	private String transactionName;
 	
 	public TransactionPanel( Controller controller )
 	{
@@ -113,67 +111,22 @@ public class TransactionPanel extends JPanel implements ActionListener, KeyListe
 		labelQueryRuntime.setBounds(644, 224, 377, 26);
 		this.add(labelQueryRuntime);
 		
-		rdbtnCustomQuery = new JRadioButton("Custom Query");
-		rdbtnCustomQuery.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		rdbtnCustomQuery.setBounds(10, 263, 153, 23);
-		rdbtnCustomQuery.addActionListener(this);
-		this.add(rdbtnCustomQuery);
+		labelHpqcropQueryConditions = new JLabel("hpq_crop Query Conditions");
+		labelHpqcropQueryConditions.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		labelHpqcropQueryConditions.setBounds(10, 262, 196, 26);
+		this.add(labelHpqcropQueryConditions);
 		
-		rdbtnDefaultQueries = new JRadioButton("Default Queries");
-		rdbtnDefaultQueries.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		rdbtnDefaultQueries.setBounds(644, 263, 140, 23);
-		rdbtnDefaultQueries.addActionListener(this);
-		this.add(rdbtnDefaultQueries);
+		panelConditions = new JPanel();
+		panelConditions.setLayout(new BoxLayout(panelConditions, BoxLayout.Y_AXIS));
+		scrollpaneCondition = new JScrollPane(panelConditions, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollpaneCondition.setBounds(10, 288, 624, 151);
+		scrollpaneCondition.setAlignmentX(LEFT_ALIGNMENT);
+		this.add(scrollpaneCondition);
 		
-		ButtonGroup radioButtons = new ButtonGroup();
-		radioButtons.add(rdbtnCustomQuery);
-		radioButtons.add(rdbtnDefaultQueries);
-		
-		textareaQuery = new JTextArea();
-		textareaQuery.setFont(new Font("Courier New", Font.PLAIN, 13));
-		textareaQuery.setEnabled(false);
-		textareaQuery.addKeyListener(this);
-		textareaQuery.addMouseListener(this);
-		scrollpaneCustomQuery = new JScrollPane(textareaQuery, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollpaneCustomQuery.setBounds(10, 287, 620, 121);
-		this.add(scrollpaneCustomQuery);
-		
-		defaultListModel = new DefaultListModel<>();
-		addQueryListToListModel();
-		listDefaultQuery = new JList<String>(defaultListModel);
-		listDefaultQuery.setFont(new Font("Courier New", Font.PLAIN, 13));
-		listDefaultQuery.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		listDefaultQuery.setLayoutOrientation(JList.VERTICAL);
-		listDefaultQuery.setEnabled(false);
-		listDefaultQuery.addMouseListener(this);
-		scrollpaneDefaultQuery = new JScrollPane(listDefaultQuery, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollpaneDefaultQuery.setBounds(644, 287, 620, 121);
-		this.add(scrollpaneDefaultQuery);
-		
-		labelDatabase = new JLabel("Database");
-		labelDatabase.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		labelDatabase.setBounds(10, 419, 75, 14);
-		this.add(labelDatabase);
-		
-		ckboxCentral = new JCheckBox("Central");
-		ckboxCentral.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		ckboxCentral.setBounds(95, 415, 75, 23);
-		this.add(ckboxCentral);
-		
-		ckboxMarinduque = new JCheckBox("Marinduque");
-		ckboxMarinduque.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		ckboxMarinduque.setBounds(172, 415, 97, 23);
-		this.add(ckboxMarinduque);
-		
-		ckboxPalawan = new JCheckBox("Palawan");
-		ckboxPalawan.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		ckboxPalawan.setBounds(271, 415, 97, 23);
-		this.add(ckboxPalawan);
-		
-		ButtonGroup checkboxes = new ButtonGroup();
-		checkboxes.add(ckboxCentral);
-		checkboxes.add(ckboxMarinduque);
-		checkboxes.add(ckboxPalawan);
+		buttonAddCondition = new JButton("Add Condition");
+		buttonAddCondition.setBounds(644, 330, 130, 60);
+		buttonAddCondition.addActionListener(this);
+		this.add(buttonAddCondition);
 		
 		labelIsolationLevel = new JLabel("Isolation Level");
 		labelIsolationLevel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -198,85 +151,63 @@ public class TransactionPanel extends JPanel implements ActionListener, KeyListe
 		cmboxQueryAction.setFont(new Font("Segoe UI", Font.PLAIN, 11));
 		cmboxQueryAction.setBounds(323, 446, 82, 22);
 		this.add(cmboxQueryAction);
-		
-		setDatabase();
-	}
-
-	private void addQueryListToListModel()
-	{
-		for( int i = 0; i < defaultQueries.length; i++ )
-		{
-			defaultListModel.addElement(defaultQueries[i]);
-		}
 	}
 	
-	public void populateTable( ArrayList<String> columns, Object[][] rows )
+	public void populateTable(String[] columns, Object[][] rows )
 	{
-		defaultTableModel = new DefaultTableModel(rows, columns.toArray(new String[0]));
+		defaultTableModel = new DefaultTableModel(rows, columns);
 		table.setModel(defaultTableModel);
 		
 		labelRowsReturned.setText("Rows returned: " + rows.length + " rows");
 		//labelQueryRuntime.setText("Query Runtime: " + controller.getQueryTime() / 1000 + " seconds");
 	}
 	
-	private void setDatabase()
+	public String getQuery()
 	{
-		String type = "";
-		if( controller != null )
-		{
-			type = controller.getType();
-		}
-		System.out.println(type);
+		String query = "SELECT * FROM hpq_crop ";
 		
-		if( type.equalsIgnoreCase("Central") )
+		if( panelConditions.getComponentCount() != 0 )
 		{
-			ckboxCentral.setSelected(true);
-		}
-		else if( type.equalsIgnoreCase("Marinduque") )
-		{
-			ckboxMarinduque.setSelected(true);
-		}
-		else if( type.equalsIgnoreCase("Palawan") )
-		{
-			ckboxPalawan.setSelected(true);
-		}
-	}
-	
-	public List<String> getInput()
-	{
-		if( rdbtnCustomQuery.isSelected() )
-		{
-			ArrayList<String> query = new ArrayList<String>(0);
-			query.add(textareaQuery.getText().toString());
-			
-			return query;
-		}
-		else if( rdbtnDefaultQueries.isSelected() )
-		{
-			return listDefaultQuery.getSelectedValuesList();
+			query += "WHERE ";
 		}
 		
-		return new ArrayList<String>();
+		for( int i = 0; i < panelConditions.getComponentCount(); i++ )
+		{
+			if( i + 1 < panelConditions.getComponentCount() )
+			{
+				query += ((ConditionPanel) panelConditions.getComponent(i)).getCondition() + " AND ";
+			}
+			else
+			{
+				query += ((ConditionPanel) panelConditions.getComponent(i)).getCondition() + " ";
+			}
+		}
+		
+		query += ";";
+		
+		System.out.println("Query: " + query);
+		
+		
+		return query;
 	}
 	
-	public String getDatabase()
+	public List<String> getConditions()
 	{
-		if ( ckboxCentral.isSelected() )
+		ArrayList<String> conditions = new ArrayList<>(0);
+		
+		for( int i = 0; i < panelConditions.getComponentCount(); i++ )
 		{
-			return ckboxCentral.getText().toString();
+			conditions.add(((ConditionPanel) panelConditions.getComponent(i)).getCondition());
 		}
-		else if ( ckboxMarinduque.isSelected() )
+		
+		/*System.out.println("TRANSACION PANEL GET INPUT START");
+		for( int i = 0; i < conditions.size(); i++ )
 		{
-			return ckboxMarinduque.getText().toString();
+			System.out.println(conditions.get(i));
 		}
-		else if ( ckboxPalawan.isSelected() )
-		{
-			return ckboxPalawan.getText().toString();
-		}
-		else
-		{
-			return "";
-		}
+		System.out.println("TRANSACION PANEL GET INPUT END");
+		*/
+		return conditions;
 	}
 	
 	public String getIsolationLevel()
@@ -289,110 +220,32 @@ public class TransactionPanel extends JPanel implements ActionListener, KeyListe
 		return cmboxQueryAction.getSelectedItem().toString();
 	}
 	
+	public String getTransactionName()
+	{
+		return transactionName;
+	}
+	
+	public void setTransactionName( String transactionName )
+	{
+		this.transactionName = transactionName;
+	}
+	
 	// ACTION LISTENER
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if( e.getSource() == rdbtnCustomQuery )
+		if ( e.getSource() == buttonAddCondition )
 		{
-			textareaQuery.setEnabled(true);
-			listDefaultQuery.setEnabled(false);
-			textareaQuery.requestFocus();
-		}
-		else if( e.getSource() == rdbtnDefaultQueries )
-		{
-			textareaQuery.setEnabled(false);
-			listDefaultQuery.setEnabled(true);
-		}
-	}
-
-	// KEY LISTENER
-	@Override
-	public void keyPressed(KeyEvent e)
-	{
-		checkCustomQueryInput();
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e)
-	{
-		checkCustomQueryInput();
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e)
-	{
-		checkCustomQueryInput();
-	}
-	
-	private void checkCustomQueryInput()
-	{
-		/*if( textareaQuery.getText().isEmpty() && rdbtnCustomQuery.isSelected() )
-		{
-			buttonExecute.setEnabled(false);
-		}
-		else
-		{
-			buttonExecute.setEnabled(true);
-		}*/
-	}
-	
-	// MOUSE LISTENER
-	@Override
-	public void mouseClicked(MouseEvent e)
-	{
-		setEnabledComponents(e);
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0){}
-
-	@Override
-	public void mouseExited(MouseEvent arg0){}
-
-	@Override
-	public void mousePressed(MouseEvent e)
-	{
-		setEnabledComponents(e);
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent arg0){}
-	
-	private void setEnabledComponents( MouseEvent e )
-	{
-		if( e.getSource() == textareaQuery )
-		{
-			rdbtnCustomQuery.setSelected(true);
-			textareaQuery.setEnabled(true);
-			listDefaultQuery.setEnabled(false);
-			textareaQuery.requestFocus();
-			
-			checkQueryInputs();
-		}
-		else if( e.getSource() == listDefaultQuery )
-		{
-			rdbtnDefaultQueries.setSelected(true);
-			textareaQuery.setEnabled(false);
-			listDefaultQuery.setEnabled(true);
-			
-			checkQueryInputs();
+			ConditionPanel newPanel = new ConditionPanel(this);
+			newPanel.setPreferredSize(new Dimension(506, 47));
+			panelConditions.add(newPanel);
 		}
 	}
 	
-	private void checkQueryInputs()
+	public void removeCondition( ConditionPanel conditionPanel )
 	{
-		/*if( rdbtnCustomQuery.isSelected() && !textareaQuery.getText().isEmpty() )
-		{
-			buttonExecute.setEnabled(true);
-		}
-		else if( rdbtnDefaultQueries.isSelected() && listDefaultQuery.getSelectedIndex() != -1 )
-		{
-			buttonExecute.setEnabled(true);
-		}
-		else
-		{
-			buttonExecute.setEnabled(false);
-		}*/
+		panelConditions.remove(conditionPanel);
+		panelConditions.revalidate();
+		panelConditions.repaint();
 	}
 }
