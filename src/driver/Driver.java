@@ -16,13 +16,12 @@ public class Driver
 		
 		// Starting the Server
 
-		Controller con = new Controller("192.168.1.138", "Central");
+		Controller con = new Controller("192.168.0.111", "Central");
 		Server SER = new Server(con, PORT);
 		Thread X = new Thread(SER);
 		X.start();	// Runs the server process
 		
-//		con.add("192.168.1.138", "Central");
-//		con.add("", "");
+		//con.add("192.168.1.115", "Central");
 		MainGUI mainGUI = new MainGUI(con);
 	}
 }
