@@ -189,7 +189,7 @@ public class TransactionPanel extends JPanel implements ActionListener
 	}
 	
 	// populate the result table with the given column and row data
-	public void populateTable(String[] columns, Object[][] rows )
+	public void populateTable(String[] columns, Object[][] rows)
 	{
 		defaultTableModel = new DefaultTableModel(rows, columns);
 		table.setModel(defaultTableModel);

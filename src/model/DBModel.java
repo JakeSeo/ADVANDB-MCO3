@@ -28,53 +28,57 @@ public class DBModel {
 		return dbm;
 	}
 
-	public TableContents getData(String transactionName, String q) {
+	public TableContents getData(Transaction t)
+	{
+		String q = t.getQuery();
+		String transactionName = t.getName();
+		String requestingNode = t.getRequestingNode();
 		ResultSet rs = null;
-                CachedRowSetImpl cs = null;
-                    TableContents tc = null;
-                    try {
-                        //conn = DBConnection.getConnection();
-                       // String query = "SELECT * FROM tbl;";
-                    	String query = q;
-                        PreparedStatement statement = (PreparedStatement) conn.prepareStatement(query);
-                        rs = statement.executeQuery();
-                        
-                        ResultSetMetaData md = rs.getMetaData();
-                        int columnCount = md.getColumnCount();
-                        
-                        String[] columnNames = new String[columnCount];
-                        for (int i = 1; i <= columnCount; i++) {
-                            columnNames[i - 1] = md.getColumnName(i);
-                        }
-                        
-                        cs = new CachedRowSetImpl();
-                        cs.populate(rs);
-                        
-                        while (true) {
-                            if (cs != null)
-                                break;
-                        }
-                        tc = new TableContents(transactionName, columnNames, cs);
-                        System.out.println("DONE EXECUTING TRANS in getdata  " + query);
-                        return tc;
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }catch(NullPointerException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    /*finally {
-                        if (conn != null) {
-                            try {
-                                conn.close();
-                            } catch (SQLException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                        }
-                    }*/
-                    
-                    return null;
+	    CachedRowSetImpl cs = null;
+	    TableContents tc = null;
+	    
+	        try {
+	            //conn = DBConnection.getConnection();
+	           // String query = "SELECT * FROM tbl;";
+	        	String query = q;
+	            PreparedStatement statement = (PreparedStatement) conn.prepareStatement(query);
+	            rs = statement.executeQuery();
+	            
+	            ResultSetMetaData md = rs.getMetaData();
+	            int columnCount = md.getColumnCount();
+	            
+	            String[] columnNames = new String[columnCount];
+	            for (int i = 1; i <= columnCount; i++) {
+	                columnNames[i - 1] = md.getColumnName(i);
+	            }
+	            
+	            cs = new CachedRowSetImpl();
+	            cs.populate(rs);
+	            
+	            while (true) {
+	                if (cs != null)
+	                    break;
+	            }
+	            tc = new TableContents(transactionName, columnNames, cs);
+	            System.out.println("DONE EXECUTING TRANS in getdata  " + query);
+	            return tc;
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }catch(NullPointerException e)
+	        {
+	            e.printStackTrace();
+	        }
+	        /*finally {
+	            if (conn != null) {
+	                try {
+	                    conn.close();
+	                } catch (SQLException e) {
+	                    // TODO Auto-generated catch block
+	                    e.printStackTrace();
+	                }
+	            }
+	        }*/
+	        return null;
 	}
 
 	public CachedRowSetImpl getAllData() {

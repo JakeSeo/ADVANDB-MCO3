@@ -28,9 +28,8 @@ public class TransactionThread implements Runnable{
                 System.out.println("Waiting ...");
                 cb.await();
                 System.out.println("G");
-                TableContents tc = db.getData(t.getName(), t.getQuery());
-                c.sendTableContents(tc, ip);
-                
+                TableContents tc = db.getData(t);
+                c.sendTableContents(tc, t.getTransType(), ip);
                 System.out.println("START");
                 
             } catch (InterruptedException ex) {

@@ -231,9 +231,10 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 			for( int i = 0; i < selectedTransactions.size(); i++ )
 			{
 				String name = ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(selectedTransactions.get(i))).getTransactionName();
-			                    System.out.println("Index: " + name);
+			    System.out.println("Index: " + name);
 				String query = ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(i)).getQuery();
-				controller.sendTransaction(name, query, 1, 1);
+				String database = ((TransactionPanel)tabbedpaneTransactionPanel.getComponent(i)).getDatabase();
+				controller.sendTransaction(name, query, database, 1, 1);
 			}
 		}
 	}

@@ -53,8 +53,9 @@ public class Client {
 				{
 					System.out.println("Client receive (enter READ)");
 					c.receiveTransaction(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,14).getBytes().length, current), "localhost");	
-				} else if(InputCommand.substring(0, 20).equals("\"SENDTABLECONTENTS\" ")) {
-					c.receiveTableContents(S.getInetAddress().toString().substring(1), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,20).getBytes().length, current));
+				} else if(InputCommand.substring(0, 20).equals("\"SENDTABLECONTENTS\" "))
+				{
+					c.receiveTableContents(S.getInetAddress().toString().substring(1), InputCommand.substring(20, 22), Arrays.copyOfRange(scannedbytes, InputCommand.substring(0,22).getBytes().length, current));
 				}
 //				if(InputCommand.substring(0, 16).equals("\"SENDRESULTSET\" "))
 //				{
