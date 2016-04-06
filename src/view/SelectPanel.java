@@ -1,37 +1,36 @@
 package view;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JPanel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingConstants;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.JButton;
-import java.awt.Font;
 
-public class ConditionPanel extends JPanel implements ActionListener
+public class SelectPanel extends JPanel implements ActionListener
 {
-	private DefaultComboBoxModel<String> dcbmColumn, dcbmOperator;
+	private DefaultComboBoxModel<String> dcbmColumn, dcbmAggregate;
 	
 	private JButton buttonRemove;
-	private JComboBox<String> cmboxColumn, cmboxOperator;
-	private JTextField textfieldInput;
+	private JComboBox<String> cmboxColumn, cmboxAggregate;
+	private JLabel labelArrow;
 	
 	private String[] columns = { "hpq_hh_id", "id", "crop_line", "croptype", "croptype_o", "crop_vol" };
-	private String[] operators = { "=", "<>", ">", "<", ">=", "<=", "BETWEEN", "LIKE", "IN"};
+	private String[] aggregate = { "", "AVG", "COUNT", "MAX", "MIN", "SUM" };
 	
 	private TransactionPanel transactionPanel;
 	
-	public ConditionPanel( TransactionPanel transactionPanel )
+	public SelectPanel( TransactionPanel transactionPanel )
 	{
 		try
 		{
@@ -56,7 +55,7 @@ public class ConditionPanel extends JPanel implements ActionListener
 		this.transactionPanel = transactionPanel;
 		
 		this.setLayout(null);
-		this.setSize(435, 52);
+		this.setSize(280, 52);
 		
 		dcbmColumn = new DefaultComboBoxModel<>(columns);
 		cmboxColumn = new JComboBox<String>(dcbmColumn);
@@ -65,56 +64,57 @@ public class ConditionPanel extends JPanel implements ActionListener
 		((JLabel)cmboxColumn.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
 		this.add(cmboxColumn);
 		
-		dcbmOperator = new DefaultComboBoxModel<>(operators);
-		cmboxOperator = new JComboBox<String>(dcbmOperator);
-		cmboxOperator.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		cmboxOperator.setBounds(120, 11, 100, 30);
-		((JLabel)cmboxOperator.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
-		this.add(cmboxOperator);
+		labelArrow = new JLabel("<html><div style='text-align: center;'>-></html>");
+		labelArrow.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		labelArrow.setBounds(120, 11, 35, 30);
+		this.add(labelArrow);;
 		
-		textfieldInput = new JTextField();
-		textfieldInput.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		textfieldInput.setBounds(230, 11, 140, 30);
-		this.add(textfieldInput);
-		textfieldInput.setColumns(10);	
+		dcbmAggregate = new DefaultComboBoxModel<>(aggregate);
+		cmboxAggregate = new JComboBox<String>(dcbmAggregate);
+		cmboxAggregate.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		cmboxAggregate.setBounds(140, 11, 75, 30);
+		((JLabel)cmboxAggregate.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+		this.add(cmboxAggregate);
 		
 		buttonRemove = new JButton("x");
 		buttonRemove.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		buttonRemove.setBounds(380, 11, 45, 30);
+		buttonRemove.setBounds(225, 11, 45, 30);
 		buttonRemove.addActionListener(this);
 		this.add(buttonRemove);
+		
+		
 	}
-	
-	public String getWhere()
+
+	public boolean isAggregate()
 	{
-		boolean isInt;
-		
-		try
+		if( cmboxAggregate.getSelectedIndex() == 0 )
 		{
-			Integer.parseInt(textfieldInput.getText().toString());
-			isInt = true;
-		}
-		catch( NumberFormatException e )
-		{
-			isInt = false;
-		}
-		
-		if( isInt )
-		{
-			return cmboxColumn.getSelectedItem().toString() + " " + cmboxOperator.getSelectedItem().toString() + " " + textfieldInput.getText().toString();
+			return false;
 		}
 		else
 		{
-			return cmboxColumn.getSelectedItem().toString() + " " + cmboxOperator.getSelectedItem().toString() + " '" + textfieldInput.getText().toString() + "'";
+			return true;
 		}
 	}
-
+	
+	public String getSelect()
+	{
+		if( cmboxAggregate.getSelectedIndex() == 0 )
+		{
+			return cmboxColumn.getSelectedItem().toString();
+		}
+		else
+		{
+			return cmboxAggregate.getSelectedItem().toString() + "(" + cmboxColumn.getSelectedItem().toString() + ")";
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
 		if( e.getSource() == buttonRemove )
 		{
-			transactionPanel.removeWhere(this);
+			transactionPanel.removeSelect(this);
 		}
 	}
 }

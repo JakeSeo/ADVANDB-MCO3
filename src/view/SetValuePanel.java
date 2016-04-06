@@ -55,33 +55,34 @@ public class SetValuePanel extends JPanel implements ActionListener
 		this.transactionPanel = transactionPanel;
 		
 		this.setLayout(null);
-		this.setSize(506, 52);
+		this.setSize(370, 52);
 		
 		dcbmColumn = new DefaultComboBoxModel<>(columns);
 		cmboxColumn = new JComboBox<String>(dcbmColumn);
 		cmboxColumn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		cmboxColumn.setBounds(10, 11, 150, 30);
+		cmboxColumn.setBounds(10, 11, 100, 30);
+		((JLabel)cmboxColumn.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
 		this.add(cmboxColumn);
 		
-		labelArrow = new JLabel(">>");
+		labelArrow = new JLabel("<html><div style='text-align: center;'>>></html>");
 		labelArrow.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		labelArrow.setBounds(223, 12, 46, 30);
+		labelArrow.setBounds(130, 11, 35, 30);
 		this.add(labelArrow);
 
 		textfieldInput = new JTextField();
 		textfieldInput.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		textfieldInput.setBounds(302, 11, 140, 30);
+		textfieldInput.setBounds(165, 11, 140, 30);
 		this.add(textfieldInput);
 		textfieldInput.setColumns(10);	
 		
 		buttonRemove = new JButton("x");
 		buttonRemove.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		buttonRemove.setBounds(452, 10, 45, 30);
+		buttonRemove.setBounds(315, 11, 45, 30);
 		buttonRemove.addActionListener(this);
 		this.add(buttonRemove);
 	}
 
-	public String getSetValue()
+	public String getUpdate()
 	{
 		boolean isInt;
 		
@@ -110,7 +111,7 @@ public class SetValuePanel extends JPanel implements ActionListener
 	{
 		if( e.getSource() == buttonRemove )
 		{
-			transactionPanel.removeChangeValue(this);
+			transactionPanel.removeUpdate(this);
 		}
 	}
 }

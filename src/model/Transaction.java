@@ -5,30 +5,36 @@ import java.io.Serializable;
 public class Transaction implements Serializable{
 	private String name;
 	private String query;
+	private String writeQuery;
 	private int isolationLvl;
 	private int end;
 	private String database;
-	private String requestingNode;
 	private String transtype;
+	private String nodeType;
 	
-	public Transaction(String name, String query, int isolationLvl, int end, String database, String requestingNode, String transtype) {
+	public Transaction(String name, String query, int isolationLvl, int end, String database, String transtype) {
 		this.name = name;
 		this.isolationLvl = isolationLvl;
 		this.end = end;
 		this.query = query;
 		this.database = database;
-		this.requestingNode = requestingNode;
 		this.transtype = transtype;
+		this.nodeType = nodeType;
+		this.writeQuery = query;
+	}
+	
+	public String getWriteQuery(){
+		return writeQuery;
+	}
+	
+	public String getNodeType(){
+		return nodeType;
 	}
 	
 	public String getTransType(){
 		return transtype;
 	}
 
-	public String getRequestingNode() {
-		return requestingNode;
-	}
-	
 	public String getDatabase() {
 		return database;
 	}
@@ -54,15 +60,17 @@ public class Transaction implements Serializable{
 		this.database = database;
 	}
 	
-	public void setRequestingNode(String rn)
-	{
-		this.requestingNode = rn;
-	}
-	
 	public void setTransType(String transtype)
 	{
 		this.transtype = transtype;
 	}
 	
+	public void setQuery(String query)
+	{
+		this.query = query;
+	}
 
+	public void setNodeType(String NodeType){
+		this.nodeType = NodeType;
+	}
 }

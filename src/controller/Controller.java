@@ -104,59 +104,122 @@ public class Controller {
 	// Sending a read transaction request
 	public void sendTransaction(String name, String query, String database, int isolationLvl, int end) {
 		
-		Transaction t = new Transaction(name, query, isolationLvl, end, database, type, "global");
-		
-        //If any Local Transaction
-        if (type.equals("Central") && database.equals("Central")
-        	|| type.equals("Marinduque") && database.equals("Marinduque")
-        	|| type.equals("Palawan") && database.equals("Palawan")
-           ) 
-        {
-        	t.setTransType("L");
-	        System.out.println(t.toString()); // query locally here.
-	        TransactionThread tt = new TransactionThread(t, this, ip, cb);
-	        new Thread(tt).start();        
-		}
-        // If any single site global transaction
-		else if(type.equals("Central") && (database.equals("Palawan") || database.equals("Marinduque"))
-				|| type.equals("Palawan") && database.equals("Marinduque")
-				|| type.equals("Marinduque") && database.equals("Palawan")
-			   )
-		{
-        	t.setTransType("S");
-			Socket SOCK;
-			String ip = null;
-			if(database.equals("Palawan"))
-				ip = palawan.getIpadd();
-			else ip = marin.getIpadd();
-			
-			try {
-				SOCK = new Socket(ip, Port); // Open socket
-				String first = "\"TRANSACTION\" ";
-				byte[] prefix = first.getBytes();
-				byte[] mybytearray = serialize(t);
-				byte[] finalByte = byteConcat(prefix, mybytearray);
-				InputStream is = new ByteArrayInputStream(finalByte);
-				int bytesRead = is.read(mybytearray, 0, mybytearray.length);
-				OutputStream os = SOCK.getOutputStream(); // Get socket output
-															// stream to send
-															// file through //
-				os.write(finalByte, 0, finalByte.length); // Send file bytes
-															// through socket
-				os.flush();
-				SOCK.close();
-			} catch (UnknownHostException e) {
-				System.out.println("Sorry ka wala kang makukuha.");
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		Transaction t = new Transaction(name, query, isolationLvl, end, database, "global");
+		t.setNodeType(type);
+		/*if(t.getQuery().startsWith("SELECT"))
+		{*/
+	        //If any Local Transaction
+	        if (type.equals("Central") && database.equals("Central")
+	        	|| type.equals("Marinduque") && database.equals("Marinduque")
+	        	|| type.equals("Palawan") && database.equals("Palawan")
+	           ) 
+	        {
+	        	t.setTransType("L");
+		        System.out.println(t.toString()); // query locally here.
+		        TransactionThread tt = new TransactionThread(t, this, ip, cb);
+		        new Thread(tt).start();        
 			}
-		}
-        // if you're at any branch and you want to get all data
-		else if((type.equals("Marinduque") || type.equals("Palawan")) && database.equals("Central"))
-		{
-        	t.setTransType("G");
+	        // If any single site global transaction
+			else if(type.equals("Central") && (database.equals("Palawan") || database.equals("Marinduque"))
+					|| type.equals("Palawan") && database.equals("Marinduque")
+					|| type.equals("Marinduque") && database.equals("Palawan")
+				   )
+			{
+	        	t.setTransType("S");
+				Socket SOCK;
+				String ip = null;
+				if(database.equals("Palawan"))
+					ip = palawan.getIpadd();
+				else ip = marin.getIpadd();
+				
+				try {
+					SOCK = new Socket(ip, Port); // Open socket
+					String first = "\"TRANSACTION\" ";
+					byte[] prefix = first.getBytes();
+					byte[] mybytearray = serialize(t);
+					byte[] finalByte = byteConcat(prefix, mybytearray);
+					InputStream is = new ByteArrayInputStream(finalByte);
+					int bytesRead = is.read(mybytearray, 0, mybytearray.length);
+					OutputStream os = SOCK.getOutputStream(); // Get socket output
+																// stream to send
+																// file through //
+					os.write(finalByte, 0, finalByte.length); // Send file bytes
+																// through socket
+					os.flush();
+					SOCK.close();
+				} catch (UnknownHostException e) {
+					System.out.println("Sorry ka wala kang makukuha.");
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+	        // if you're at any branch and you want to get all data
+			else if((type.equals("Marinduque") || type.equals("Palawan")) && database.equals("Central"))
+			{
+	        	t.setTransType("G");
+				Socket SOCK;
+				String ip = central.getIpadd();
+				
+				try {
+					SOCK = new Socket(ip, Port); // Open socket
+					String first = "\"TRANSACTION\" ";
+					byte[] prefix = first.getBytes();
+					byte[] mybytearray = serialize(t);
+					byte[] finalByte = byteConcat(prefix, mybytearray);
+					InputStream is = new ByteArrayInputStream(finalByte);
+					int bytesRead = is.read(mybytearray, 0, mybytearray.length);
+					OutputStream os = SOCK.getOutputStream(); // Get socket output
+																// stream to send
+																// file through //
+					os.write(finalByte, 0, finalByte.length); // Send file bytes
+																// through socket
+					os.flush();
+					SOCK.close();
+				} catch (SocketException e) {
+					t.setTransType("R");
+					if (type.equals("Palawan")) {
+						ip = marin.getIpadd();
+					} else {
+						ip = palawan.getIpadd();
+					}
+					
+					queryLocally(t);
+					// do the get from the other side here and merge
+					
+					try {
+						SOCK = new Socket(ip, Port); // Open socket
+						String first = "\"TRANSACTION\" ";
+						byte[] prefix = first.getBytes();
+						byte[] mybytearray = serialize(t);
+						byte[] finalByte = byteConcat(prefix, mybytearray);
+						InputStream is = new ByteArrayInputStream(finalByte);
+						int bytesRead = is.read(mybytearray, 0, mybytearray.length);
+						OutputStream os = SOCK.getOutputStream(); // Get socket output
+																	// stream to send
+																	// file through //
+						os.write(finalByte, 0, finalByte.length); // Send file bytes
+																	// through socket
+						os.flush();
+						SOCK.close();
+					} catch (UnknownHostException ex) {					
+						ex.printStackTrace();
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}finally
+					{
+						
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+/*		}
+		else
+		{	
+			t.setTransType("W");
 			Socket SOCK;
 			String ip = central.getIpadd();
 			
@@ -213,7 +276,7 @@ public class Controller {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 	
 	public void receiveTransaction(String senderIp, byte[] bytes, String receiverIp) {

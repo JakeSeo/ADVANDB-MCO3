@@ -28,6 +28,14 @@ public class TransactionThread implements Runnable{
                 System.out.println("Waiting ...");
                 cb.await();
                 System.out.println("G");
+                String query = "";
+                if(t.getQuery().startsWith("UPDATE"))
+                {	
+                	System.out.println("WENT IN UPDATE ");
+                	query = db.updateData(t);
+                	t.setQuery(query);
+                }
+                System.out.println("GONNA READ NOW ");
                 TableContents tc = db.getData(t);
                 c.sendTableContents(tc, t.getTransType(), ip);
                 System.out.println("START");

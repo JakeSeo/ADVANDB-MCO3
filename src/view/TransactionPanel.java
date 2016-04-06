@@ -36,12 +36,12 @@ public class TransactionPanel extends JPanel implements ActionListener
 	private DefaultComboBoxModel<String> dcbmIsolation, dcbmAction;
 	private DefaultTableModel defaultTableModel;
 	
-	private JButton buttonAddCondition, buttonSetValue;
+	private JButton buttonAddSelect, buttonAddCondition, buttonSetValue;
 	private JComboBox<String> cmboxIsolation, cmboxQueryAction;
-	private JCheckBox ckboxRead, ckboxWrite, ckboxCentral, ckboxMarinduque, ckboxPalawan;
+	private JCheckBox ckboxReadSelect, ckboxReadWhere, ckboxWrite, ckboxCentral, ckboxMarinduque, ckboxPalawan;
 	private JLabel labelResults, labelRowsReturned, labelQueryRuntime, labelDatabase, labelIsolationLevel, labelQueryAction;
-	private JPanel panelRead, panelWrite;
-	private JScrollPane scrollpaneTable, scrollpaneRead, scrollpaneWrite;
+	private JPanel panelSelect, panelWhere, panelUpdate;
+	private JScrollPane scrollpaneTable, scrollpaneSelect, scrollpaneWhere, scrollpaneUpdate;
 	private JTable table;
 	
 	private String transactionName;
@@ -79,6 +79,16 @@ public class TransactionPanel extends JPanel implements ActionListener
 		labelResults.setBounds(10, 11, 103, 26);
 		this.add(labelResults);
 		
+		labelRowsReturned = new JLabel("Rows Returned: ");
+		labelRowsReturned.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		labelRowsReturned.setBounds(306, 11, 276, 26);
+		this.add(labelRowsReturned);
+		
+		labelQueryRuntime = new JLabel("Query Runtime: ");
+		labelQueryRuntime.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		labelQueryRuntime.setBounds(868, 11, 377, 26);
+		this.add(labelQueryRuntime);
+		
 		defaultTableModel = new DefaultTableModel();
 		table = new JTable(defaultTableModel);
 		table.setFont(new Font("Segoe UI", Font.PLAIN, 11));
@@ -86,55 +96,65 @@ public class TransactionPanel extends JPanel implements ActionListener
 		scrollpaneTable.setBounds(10, 38, 1254, 186);
 		this.add(scrollpaneTable);
 		
-		labelRowsReturned = new JLabel("Rows Returned: ");
-		labelRowsReturned.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		labelRowsReturned.setBounds(11, 224, 276, 26);
-		this.add(labelRowsReturned);
+		ckboxReadSelect = new JCheckBox("SELECT *");
+		ckboxReadSelect.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		ckboxReadSelect.setEnabled(false);
+		ckboxReadSelect.setSelected(true);
+		ckboxReadSelect.setBounds(9, 231, 140, 23);
+		add(ckboxReadSelect);
 		
-		labelQueryRuntime = new JLabel("Query Runtime: ");
-		labelQueryRuntime.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		labelQueryRuntime.setBounds(644, 224, 377, 26);
-		this.add(labelQueryRuntime);
+		buttonAddSelect = new JButton("Add Select");
+		buttonAddSelect.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+		buttonAddSelect.setBounds(205, 231, 115, 25);
+		buttonAddSelect.addActionListener(this);
+		add(buttonAddSelect);
 		
-		ckboxRead = new JCheckBox("Read Operation");
-		ckboxRead.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		ckboxRead.setBounds(10, 263, 153, 23);
-		ckboxRead.setEnabled(false);
-		ckboxRead.addActionListener(this);
-		this.add(ckboxRead);
+		ckboxReadWhere = new JCheckBox("WHERE");
+		ckboxReadWhere.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		ckboxReadWhere.setBounds(365, 231, 210, 23);
+		ckboxReadWhere.setEnabled(false);
+		ckboxReadWhere.addActionListener(this);
+		this.add(ckboxReadWhere);
 		
-		ckboxWrite = new JCheckBox("Write Operation");
+		buttonAddCondition = new JButton("Add Condition");
+		buttonAddCondition.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+		buttonAddCondition.setBounds(710, 231, 115, 25);
+		buttonAddCondition.addActionListener(this);
+		this.add(buttonAddCondition);
+		
+		ckboxWrite = new JCheckBox("UPDATE");
 		ckboxWrite.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		ckboxWrite.setBounds(644, 263, 140, 23);
+		ckboxWrite.setBounds(868, 231, 225, 23);
 		ckboxWrite.setEnabled(false);
 		ckboxWrite.addActionListener(this);
 		this.add(ckboxWrite);
 		
-		panelRead = new JPanel();
-		panelRead.setLayout(new BoxLayout(panelRead, BoxLayout.Y_AXIS));
-		scrollpaneRead = new JScrollPane(panelRead, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollpaneRead.setBounds(10, 288, 624, 121);
-		scrollpaneRead.setAlignmentX(LEFT_ALIGNMENT);
-		this.add(scrollpaneRead);
-		
-		panelWrite = new JPanel();
-		panelWrite.setLayout(new BoxLayout(panelWrite, BoxLayout.Y_AXIS));
-		scrollpaneWrite = new JScrollPane(panelWrite, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollpaneWrite.setBounds(644, 287, 624, 121);
-		scrollpaneWrite.setAlignmentX(LEFT_ALIGNMENT);
-		this.add(scrollpaneWrite);
-		
-		buttonAddCondition = new JButton("Add Condition");
-		buttonAddCondition.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-		buttonAddCondition.setBounds(10, 418, 123, 25);
-		buttonAddCondition.addActionListener(this);
-		this.add(buttonAddCondition);
-		
 		buttonSetValue = new JButton("Set Value");
 		buttonSetValue.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-		buttonSetValue.setBounds(644, 414, 123, 25);
+		buttonSetValue.setBounds(1149, 231, 115, 25);
 		buttonSetValue.addActionListener(this);
 		this.add(buttonSetValue);
+		
+		panelSelect = new JPanel();
+		panelSelect.setLayout(new BoxLayout(panelSelect, BoxLayout.Y_AXIS));
+		scrollpaneSelect = new JScrollPane(panelSelect, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollpaneSelect.setBounds(10, 261, 310, 182);
+		scrollpaneSelect.setAlignmentX(LEFT_ALIGNMENT);
+		this.add(scrollpaneSelect);
+		
+		panelWhere = new JPanel();
+		panelWhere.setLayout(new BoxLayout(panelWhere, BoxLayout.Y_AXIS));
+		scrollpaneWhere = new JScrollPane(panelWhere, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollpaneWhere.setBounds(365, 261, 460, 178);
+		scrollpaneWhere.setAlignmentX(LEFT_ALIGNMENT);
+		this.add(scrollpaneWhere);
+		
+		panelUpdate = new JPanel();
+		panelUpdate.setLayout(new BoxLayout(panelUpdate, BoxLayout.Y_AXIS));
+		scrollpaneUpdate = new JScrollPane(panelUpdate, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollpaneUpdate.setBounds(869, 261, 395, 178);
+		scrollpaneUpdate.setAlignmentX(LEFT_ALIGNMENT);
+		this.add(scrollpaneUpdate);
 		
 		labelDatabase = new JLabel("Database");
 		labelDatabase.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -189,7 +209,7 @@ public class TransactionPanel extends JPanel implements ActionListener
 	}
 	
 	// populate the result table with the given column and row data
-	public void populateTable(String[] columns, Object[][] rows)
+	public void populateTable(String[] columns, Object[][] rows )
 	{
 		defaultTableModel = new DefaultTableModel(rows, columns);
 		table.setModel(defaultTableModel);
@@ -201,7 +221,7 @@ public class TransactionPanel extends JPanel implements ActionListener
 	// return the generated query based on user input
 	public String getQuery()
 	{
-		if( ckboxRead.isSelected() && ckboxWrite.isSelected() )
+		if( ckboxReadWhere.isSelected() && ckboxWrite.isSelected() )
 		{
 			return getWriteQuery();
 		}
@@ -214,14 +234,27 @@ public class TransactionPanel extends JPanel implements ActionListener
 	// return generated select statement
 	private String getReadQuery()
 	{
-		String query = "SELECT * FROM hpq_crop ";
+		String query = "";
+		String groupby = "";
 		
-		if( panelRead.getComponentCount() != 0 )
+		if( panelSelect.getComponentCount() == 0 )
 		{
-			query += getConditions();
+			query += "SELECT * ";
+		}
+		else
+		{
+			query += getSelect();
+			groupby = getGroupBy();
 		}
 		
-		query += ";";
+		query += " FROM hpq_crop ";
+		
+		if( panelWhere.getComponentCount() != 0 )
+		{
+			query += getWhere();
+		}
+		
+		query += groupby + ";";
 		
 		System.out.println("Query READ: " + query);
 			
@@ -233,27 +266,78 @@ public class TransactionPanel extends JPanel implements ActionListener
 	{
 		String query = "UPDATE hpq_crop ";
 		
-		query += getSetValues() + getConditions() + ";";
+		query += getUpdate() + getWhere() + ";";
 		
 		System.out.println("Query WRITE: " + query);
 		
 		return query;
 	}
 	
-	// return where clause based on user input
-	private String getConditions()
+	private String getSelect()
 	{
-		String query = "WHERE ";
+		String query = "SELECT ";
 		
-		for( int i = 0; i < panelRead.getComponentCount(); i++ )
+		for( int i = 0; i < panelSelect.getComponentCount(); i++ )
 		{
-			if( i + 1 < panelRead.getComponentCount() )
+			if( i + 1 < panelSelect.getComponentCount() )
 			{
-				query += ((ConditionPanel) panelRead.getComponent(i)).getCondition() + " AND ";
+				query += ((SelectPanel) panelSelect.getComponent(i)).getSelect() + " , ";
 			}
 			else
 			{
-				query += ((ConditionPanel) panelRead.getComponent(i)).getCondition() + " ";
+				query += ((SelectPanel) panelSelect.getComponent(i)).getSelect() + " ";
+			}
+		}
+		
+		return query;
+	}
+	
+	private String getGroupBy()
+	{
+		String query = "GROUP BY ";
+		
+		for( int i = 0; i < panelSelect.getComponentCount(); i++ )
+		{
+			if( !((SelectPanel) panelSelect.getComponent(i)).isAggregate() )
+			{
+				if( i + 1 < panelSelect.getComponentCount() )
+				{
+					query += ((SelectPanel) panelSelect.getComponent(i)).getSelect() + " , ";
+				}
+				else
+				{
+					query += ((SelectPanel) panelSelect.getComponent(i)).getSelect() + " ";
+				}
+			}
+		}
+		
+		if( query.equals("GROUP BY ") )
+		{
+			query = "";
+		}
+		
+		if( query.endsWith(" , ") )
+		{
+			query = query.substring(0, query.length() - 2);
+		}
+		
+		return query;
+	}
+	
+	// return where clause based on user input
+	private String getWhere()
+	{
+		String query = "WHERE ";
+		
+		for( int i = 0; i < panelWhere.getComponentCount(); i++ )
+		{
+			if( i + 1 < panelWhere.getComponentCount() )
+			{
+				query += ((ConditionPanel) panelWhere.getComponent(i)).getWhere() + " AND ";
+			}
+			else
+			{
+				query += ((ConditionPanel) panelWhere.getComponent(i)).getWhere() + " ";
 			}
 		}
 		
@@ -261,19 +345,19 @@ public class TransactionPanel extends JPanel implements ActionListener
 	}
 	
 	// return set clause based on user input
-	private String getSetValues()
+	private String getUpdate()
 	{
 		String query = "SET ";
 		
-		for( int i = 0; i < panelWrite.getComponentCount(); i++ )
+		for( int i = 0; i < panelUpdate.getComponentCount(); i++ )
 		{
-			if( i + 1 < panelWrite.getComponentCount() )
+			if( i + 1 < panelUpdate.getComponentCount() )
 			{
-				query += ((SetValuePanel) panelWrite.getComponent(i)).getSetValue() + " , ";
+				query += ((SetValuePanel) panelUpdate.getComponent(i)).getUpdate() + " , ";
 			}
 			else
 			{
-				query += ((SetValuePanel) panelWrite.getComponent(i)).getSetValue() + " ";
+				query += ((SetValuePanel) panelUpdate.getComponent(i)).getUpdate() + " ";
 			}
 		}
 		
@@ -347,51 +431,75 @@ public class TransactionPanel extends JPanel implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if ( e.getSource() == buttonAddCondition )
+		if( e.getSource() == buttonAddSelect )
 		{
-			ConditionPanel newPanel = new ConditionPanel(this);
-			newPanel.setPreferredSize(new Dimension(506, 52));
-			panelRead.add(newPanel);
+			SelectPanel selectPanel = new SelectPanel(this);
+			selectPanel.setPreferredSize(new Dimension(280, 52));
+			panelSelect.add(selectPanel);
 			
-			ckboxRead.setSelected(true);
+			ckboxReadSelect.setSelected(true);
+			ckboxReadSelect.setText("SELECT");
+		}
+		else if ( e.getSource() == buttonAddCondition )
+		{
+			ConditionPanel conditionPanel = new ConditionPanel(this);
+			conditionPanel.setPreferredSize(new Dimension(435, 52));
+			panelWhere.add(conditionPanel);
+			
+			ckboxReadSelect.setSelected(true);
+			ckboxReadWhere.setSelected(true);
 		}
 		else if( e.getSource() == buttonSetValue )
 		{
-			SetValuePanel newPanel = new SetValuePanel(this);
-			newPanel.setPreferredSize(new Dimension(506, 52));
-			panelWrite.add(newPanel);
+			SetValuePanel setValuePanel = new SetValuePanel(this);
+			setValuePanel.setPreferredSize(new Dimension(370, 52));
+			panelUpdate.add(setValuePanel);
 			
-			ckboxRead.setSelected(true);
+			ckboxReadSelect.setSelected(false);
+			ckboxReadWhere.setSelected(true);
 			ckboxWrite.setSelected(true);
 		}
 	}
 	
-	public void removeCondition( ConditionPanel conditionPanel )
+	public void removeSelect( SelectPanel selectPanel )
 	{
-		panelRead.remove(conditionPanel);
-		panelRead.revalidate();
-		panelRead.repaint();
+		panelSelect.remove(selectPanel);
+		panelSelect.revalidate();
+		panelSelect.repaint();
 		
-		if( panelRead.getComponentCount() == 0 )
+		if( panelSelect.getComponentCount() == 0 )
 		{
-			ckboxRead.setSelected(false);
+			ckboxReadSelect.setText("SELECT *");
 		}
 	}
 	
-	public void removeChangeValue( SetValuePanel setValuePanel )
+	public void removeWhere( ConditionPanel conditionPanel )
 	{
-		panelWrite.remove(setValuePanel);
-		panelWrite.revalidate();
-		panelWrite.repaint();
+		panelWhere.remove(conditionPanel);
+		panelWhere.revalidate();
+		panelWhere.repaint();
 		
-		if( panelWrite.getComponentCount() == 0 )
+		if( panelWhere.getComponentCount() == 0 )
+		{
+			ckboxReadWhere.setSelected(false);
+		}
+	}
+	
+	public void removeUpdate( SetValuePanel setValuePanel )
+	{
+		panelUpdate.remove(setValuePanel);
+		panelUpdate.revalidate();
+		panelUpdate.repaint();
+		
+		if( panelUpdate.getComponentCount() == 0 )
 		{
 			ckboxWrite.setSelected(false);
+			ckboxReadSelect.setSelected(true);
 		}
 		
-		if( panelRead.getComponentCount() == 0 )
+		if( panelWhere.getComponentCount() == 0 )
 		{
-			ckboxRead.setSelected(false);
+			ckboxReadWhere.setSelected(false);
 		}
 	}
 }

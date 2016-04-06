@@ -32,7 +32,6 @@ public class DBModel {
 	{
 		String q = t.getQuery();
 		String transactionName = t.getName();
-		String requestingNode = t.getRequestingNode();
 		ResultSet rs = null;
 	    CachedRowSetImpl cs = null;
 	    TableContents tc = null;
@@ -80,7 +79,51 @@ public class DBModel {
 	        }*/
 	        return null;
 	}
+	
+	public String updateData(Transaction t)
+	{
+		String q = t.getQuery();
+		String transactionName = t.getName();
+		boolean rs = false;
+	    CachedRowSetImpl cs = null;
+	    TableContents tc = null;
+	    
+	        try {
+	            //conn = DBConnection.getConnection();
+	           // String query = "SELECT * FROM tbl;";
+	        	String query = q;
+	            PreparedStatement statement = (PreparedStatement) conn.prepareStatement(query);
+	            rs = statement.execute();
 
+	            System.out.println("DONE EXECUTING TRANS in updatedata  " + query);
+	            //System.out.println("update WHERE query is " + q.substring(q.indexOf("WHERE"), q.length()));
+	            String newquery = "SELECT * FROM "
+	    	    				+ q.substring(q.indexOf("UPDATE")+7, q.indexOf("SET"))
+	    	    				+ " WHERE "
+	    	    				+ q.substring(q.indexOf("SET")+4, q.indexOf("WHERE")) + ";";
+	            System.out.println(newquery);
+	            return newquery;
+	            //return q.substring(q.indexOf("WHERE"), q.length());
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }catch(NullPointerException e)
+	        {
+	            e.printStackTrace();
+	        }
+	        /*finally {
+	            if (conn != null) {
+	                try {
+	                    conn.close();
+	                } catch (SQLException e) {
+	                    // TODO Auto-generated catch block
+	                    e.printStackTrace();
+	                }
+	            }
+	        }*/
+	        return null;
+	}
+	
+	
 	public CachedRowSetImpl getAllData() {
 		ResultSet rs = null;
 		CachedRowSetImpl cs = null;

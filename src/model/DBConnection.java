@@ -25,7 +25,7 @@ public class DBConnection {
     DBConnection() {
         driverName = "com.mysql.jdbc.Driver";
         url = "jdbc:mysql://localhost:3306/";
-        database = "db_hpq_marinduque";
+        database = "db_hpq";
         username = "root";
         password = "TaylorSwift13";//tempo
     }
