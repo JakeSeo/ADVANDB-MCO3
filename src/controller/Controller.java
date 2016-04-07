@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import model.Node;
+import model.SerializableTransaction;
 import model.TableContents;
 import model.Transaction;
 import model.TransactionThread;
@@ -293,7 +294,9 @@ public class Controller {
 	// Sending a read transaction request
 	public void sendTransaction(String name, String query, String database, String isolationLvl, String end) {
 
-		Transaction t = new Transaction(name, query, isolationLvl, end, database, "G");
+		//Transaction t = new Transaction(name, query, isolationLvl, end, database, "G");
+		SerializableTransaction t = new SerializableTransaction(name, query, isolationLvl, end, database, "G");
+		
 		//t.setNodeType(type);
 		/*
 		 * if(t.getQuery().startsWith("SELECT")) {
@@ -303,21 +306,25 @@ public class Controller {
 		if (query.toLowerCase().startsWith("update")) {
 			
 			if(type.equals("Central")) 
-                        {
-                                t.setTransType("U");
-                                System.out.println("SEND UPDATE REQUEST");
-                                TransactionThread tt = new TransactionThread(t, this, ip, cb);
+            {
+                t.setTransType("U");
+                Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
+                System.out.println("SEND UPDATE REQUEST");
+                TransactionThread tt = new TransactionThread(transaction, this, ip, cb);
 				new Thread(tt).start();  
-                        } else {
+            }
+			else 
+			{
 				Socket SOCK;
                 t.setTransType("U");
+                Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
                 if(isConnected(central.getIpadd()))
                 {
                     try {
 					SOCK = new Socket(central.getIpadd(), Port); // Open socket
 					String first = "\"TRANSACTION\" ";
 					byte[] prefix = first.getBytes();
-					byte[] mybytearray = serialize(t);
+					byte[] mybytearray = serialize(transaction);
 					byte[] finalByte = byteConcat(prefix, mybytearray);
 					InputStream is = new ByteArrayInputStream(finalByte);
 					int bytesRead = is.read(mybytearray, 0, mybytearray.length);
@@ -329,26 +336,26 @@ public class Controller {
 					System.out.println("Sorry ka wala kang makukuha.");
 					e.printStackTrace();
 				} catch(SocketException ex)
-                                {
-                                    //ex.printStackTrace();
-                                    System.out.println("CENTRAL IS DOWN");
-                                    
-                                } catch (IOException e) {
+	                {
+	                    //ex.printStackTrace();
+	                    System.out.println("CENTRAL IS DOWN");
+	                    
+	                } catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-                                }
-				
-                                
-			}
+             }                      
+		  }
 
 		} else {
 			if (type.equals("Central") && database.equals("Central")
-					|| type.equals("Marinduque") && database.equals("Marinduque")
-					|| type.equals("Palawan") && database.equals("Palawan")) {
+				|| type.equals("Marinduque") && database.equals("Marinduque")
+				|| type.equals("Palawan") && database.equals("Palawan"))
+			{
 				t.setTransType("L");
 				System.out.println(t.toString()); // query locally here.
-				TransactionThread tt = new TransactionThread(t, this, ip, cb);
+                Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
+				TransactionThread tt = new TransactionThread(transaction, this, ip, cb);
 				new Thread(tt).start();
 			}
 			// If any single site global transaction
@@ -363,13 +370,14 @@ public class Controller {
 				else
 					ip = marin.getIpadd();
 
-                                if(isConnected(ip))
-                                {
-                                    try {
+                if(isConnected(ip))
+                {
+                    Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
+                    try {
 					SOCK = new Socket(ip, Port); // Open socket
 					String first = "\"TRANSACTION\" ";
 					byte[] prefix = first.getBytes();
-					byte[] mybytearray = serialize(t);
+					byte[] mybytearray = serialize(transaction);
 					byte[] finalByte = byteConcat(prefix, mybytearray);
 					InputStream is = new ByteArrayInputStream(finalByte);
 					int bytesRead = is.read(mybytearray, 0, mybytearray.length);
@@ -400,13 +408,14 @@ public class Controller {
 				Socket SOCK;
 				System.out.println("Central's IP " + central.getIpadd());
 				String ip = central.getIpadd();
+                Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
                 if(isConnected(ip))
                 {
                    try {
 					SOCK = new Socket(ip, Port); // Open socket
 					String first = "\"TRANSACTION\" ";
 					byte[] prefix = first.getBytes();
-					byte[] mybytearray = serialize(t);
+					byte[] mybytearray = serialize(transaction);
 					byte[] finalByte = byteConcat(prefix, mybytearray);
 					InputStream is = new ByteArrayInputStream(finalByte);
 					int bytesRead = is.read(mybytearray, 0, mybytearray.length);
@@ -430,7 +439,7 @@ public class Controller {
                             ip = palawan.getIpadd();
                     }
 
-					queryLocally(t);
+					queryLocally(transaction);
 					// do the get from the other side here and merge
                     if(isConnected(ip))
                     {
@@ -438,7 +447,7 @@ public class Controller {
 						SOCK = new Socket(ip, Port); // Open socket
 						String first = "\"TRANSACTION\" ";
 						byte[] prefix = first.getBytes();
-						byte[] mybytearray = serialize(t);
+						byte[] mybytearray = serialize(transaction);
 						byte[] finalByte = byteConcat(prefix, mybytearray);
 						InputStream is = new ByteArrayInputStream(finalByte);
 						int bytesRead = is.read(mybytearray, 0, mybytearray.length);
@@ -530,8 +539,9 @@ public class Controller {
 
 			System.out.println("writeFile (bytes received: " + bytesRead + ")");
 
-			Transaction t = (Transaction) deserialize(mybytearray);
-			transactions.add(t);
+			SerializableTransaction t = (SerializableTransaction) deserialize(mybytearray);
+			Transaction trans = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
+			transactions.add(trans);
 
 			System.out.println("Received from " + senderIp);
 			System.out.println("Transaction Name " + transactions.get(transactions.size() - 1).getName());
@@ -542,7 +552,7 @@ public class Controller {
 			System.out.println("Transaction Type " + transactions.get(transactions.size() - 1).getTransType());
 
 			System.out.println("");
-                        executeQuery(t, senderIp);
+            executeQuery(trans, senderIp);
                         
 
 			/*
@@ -564,10 +574,10 @@ public class Controller {
 		if (!ip.equals(this.ip)) {
 			try {
 				Socket SOCK; // Open socket
-                                if(isConnected(ip))
-                                {
-                                    SOCK = new Socket(ip, 1234);
-                                tc.setTransType(transactiontype);
+                if(isConnected(ip))
+                {
+                    SOCK = new Socket(ip, 1234);
+                    tc.setTransType(transactiontype);
 
 				transactiontype = transactiontype + " ";
 				String first = "\"SENDTABLECONTENTS\" ";

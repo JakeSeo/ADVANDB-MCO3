@@ -1,10 +1,11 @@
 package model;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DBConnection {
+public class DBConnection implements Serializable {
     private static DBConnection instance = null;
 
     private String driverName;
