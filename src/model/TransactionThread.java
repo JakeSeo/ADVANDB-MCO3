@@ -46,7 +46,7 @@ public class TransactionThread implements Runnable {
 					t.lockTable("READ");
 					TableContents tc = t.getData(t);
 					t.unlockTable();
-					c.okCommit();
+					c.okCommit(t);
 					/*String ipAdd = "";
 					if(t.getDatabase().equals(c.getType())) {
 						ipAdd = c.getIp();

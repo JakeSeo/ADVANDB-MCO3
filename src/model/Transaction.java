@@ -17,8 +17,8 @@ public class Transaction implements Serializable{
 	public static int ISO_REPEATABLE_READ = 3;
 	public static int ISO_SERIALIZABLE = 4;
 	
-	public static int COMMIT = 5;
-	public static int ROLLBACK = 6;
+	public static int COMMIT = 10;
+	public static int ROLLBACK = 20;
 	
 	private String name;
 	private String query;
@@ -34,14 +34,14 @@ public class Transaction implements Serializable{
 		this.name = name;
 		//this.isolationLvl = isolationLvl;
 		//this.end = end;
+		db = new DBConnection();
+		conn = db.getConnection();
 		setIsolationLevel(isolationLvl);
 		setEnding(end);
 		this.query = query;
 		this.database = database;
 		this.transtype = transtype;
 		this.writeQuery = query;
-		db = new DBConnection();
-		conn = db.getConnection();
 	}
 	
 	public String getWriteQuery(){
@@ -94,16 +94,16 @@ public class Transaction implements Serializable{
 			try{
 				switch(iso_level) {
 				case "Read Uncomitted": isolationLvl = ISO_READ_UNCOMMITTED;
-					conn.setTransactionIsolation(ISO_READ_UNCOMMITTED);
+					conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 					break;
 				case "Read Committed": isolationLvl = ISO_READ_COMMITTED;
-					conn.setTransactionIsolation(ISO_READ_COMMITTED);
+					conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 					break;
 				case "Repeatable Read": isolationLvl = ISO_REPEATABLE_READ;
-					conn.setTransactionIsolation(ISO_REPEATABLE_READ);
+					conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 				 	break;
 				case "Serializable": isolationLvl = ISO_SERIALIZABLE;
-					conn.setTransactionIsolation(ISO_SERIALIZABLE);
+					conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 					break;
 				default: isolationLvl = ISO_SERIALIZABLE;
 					break;

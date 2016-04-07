@@ -36,29 +36,18 @@ public class DBConnection implements Serializable {
      *
      * @return instance of the Database Connection
      */
-    public static DBConnection getInstance() {
-        if (instance == null) {
-            instance = new DBConnection();
-        }
-
-        return instance;
-    }
-
     /**
      * returns a connection to database
      *
      * @return connection to database
      */
-    public static Connection getConnection() {
-        if (instance == null) {
-            instance = new DBConnection();
-        }
+    public Connection getConnection() {
 
         try {
-            return DriverManager.getConnection(instance.getUrl()
-                    + instance.getDatabase(),
-                    instance.getUsername(),
-                    instance.getPassword());
+            return DriverManager.getConnection(getUrl()
+                    + getDatabase(),
+                    getUsername(),
+                    getPassword());
         } catch (SQLException se) {
             se.printStackTrace();
         }
