@@ -60,10 +60,11 @@ public class Controller {
         {
             try {
                 Socket sock = new Socket();
-                sock.connect(new InetSocketAddress(ip, Port), 3000);
+                sock.connect(new InetSocketAddress(ip, Port), 10000);
                 sock.close();
             } catch (IOException ex) {
                 System.out.println("Failed to Connect to a node");
+                ex.printStackTrace();
                 return false;
             }
             return true;
@@ -397,12 +398,12 @@ public class Controller {
 			else if ((type.equals("Marinduque") || type.equals("Palawan")) && database.equals("Central")) {
 				t.setTransType("G");
 				Socket SOCK;
+				System.out.println("Central's IP " + central.getIpadd());
 				String ip = central.getIpadd();
-                                if(isConnected(ip))
-                                {
-                                    try {
+                if(isConnected(ip))
+                {
+                   try {
 					SOCK = new Socket(ip, Port); // Open socket
-                                        SOCK.connect(new InetSocketAddress(central.getIpadd(), Port), 1000);
 					String first = "\"TRANSACTION\" ";
 					byte[] prefix = first.getBytes();
 					byte[] mybytearray = serialize(t);
@@ -420,19 +421,19 @@ public class Controller {
 																// socket
 					os.flush();
 					SOCK.close();
-                                    } catch (SocketException e) {
-                                            t.setTransType("R");
-                                            if (type.equals("Palawan")) {
-                                                    ip = marin.getIpadd();
-                                            } else {
-                                                    ip = palawan.getIpadd();
-                                            }
+                    } catch (SocketException e)
+                   {
+                    t.setTransType("R");
+                    if (type.equals("Palawan")) {
+                            ip = marin.getIpadd();
+                    } else {
+                            ip = palawan.getIpadd();
+                    }
 
 					queryLocally(t);
 					// do the get from the other side here and merge
-                                        if(isConnected(ip))
-                                        {
-                                            
+                    if(isConnected(ip))
+                    {
 					try {
 						SOCK = new Socket(ip, Port); // Open socket
 						String first = "\"TRANSACTION\" ";
@@ -459,12 +460,12 @@ public class Controller {
 					} catch (IOException ex) {
 						System.out.println("CENTRAL IS DOWN");
 					}
-                                        }
+                  }
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-                                }
+              }
 				
 			}
 		}
