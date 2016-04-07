@@ -29,13 +29,13 @@ public class Driver
 				+ str.substring(str.indexOf("SET")+4, str.indexOf("FROM"))
 				);*/
 		
-		Controller con = new Controller("192.168.1.138", "Marinduque");
+		Controller con = new Controller("10.100.216.69", "Marinduque");
 		//Controller con = new Controller("192.168.1.122", "Palawan");
 		Server SER = new Server(con, PORT);
 		Thread X = new Thread(SER);
 		X.start();	// Runs the server process
 		
-		con.add("192.168.1.105", "Central");
+		con.add("10.100.216.61", "Central");
 		con.add("5", "Palawan");
 		MainGUI mainGUI = new MainGUI(con);
 		

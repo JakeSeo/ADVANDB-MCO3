@@ -169,7 +169,8 @@ public class Controller {
 
 			System.out.println("writeFile (bytes received: " + bytesRead + ")");
 
-			Transaction t = (Transaction) deserialize(mybytearray);
+			SerializableTransaction st = (SerializableTransaction) deserialize(mybytearray);
+			Transaction t = new Transaction(st.getName(), st.getQuery(), st.getIsolationLvl(), st.getEnd(), st.getDatabase(), st.getTransType());
 			transactions.add(t);
 
 			System.out.println("Received from " + senderIp);
@@ -200,7 +201,7 @@ public class Controller {
 	public void okWrite(Transaction t) {
 		Socket SOCK;
 		String ip = null;
-		
+		SerializableTransaction sertrans = new SerializableTransaction(t.getName(), t.getQuery(), t.getISObyInt(t.getIsolationLvl()), t.getEndByInt(t.getEnd()), t.getDatabase(), t.getTransType());
 		if(t.getDatabase().equals("Palawan") || t.getDatabase().equals("Marinduque"))
 		{
 			if (t.getDatabase().equals("Palawan")) {
@@ -215,7 +216,7 @@ public class Controller {
 				SOCK = new Socket(ip, Port); // Open socket
 				String first = "\"OKWRITE\" ";
 				byte[] prefix = first.getBytes();
-				byte[] mybytearray = serialize(t);
+				byte[] mybytearray = serialize(sertrans);
 				byte[] finalByte = byteConcat(prefix, mybytearray);
 				InputStream is = new ByteArrayInputStream(finalByte);
 				int bytesRead = is.read(mybytearray, 0, mybytearray.length);

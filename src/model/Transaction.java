@@ -327,4 +327,27 @@ public class Transaction implements Serializable{
 
 	}
 	
+	
+	public String getISObyInt(int iso_level) {
+		// TODO Auto-generated method stub
+		System.out.println("Setting string isolation level for transaction 1 to: " + iso_level);
+		
+		if(iso_level == ISO_READ_UNCOMMITTED) return "Read Uncommitted";
+		else if(iso_level == ISO_READ_COMMITTED) return "Read Committed";
+		else if(iso_level == ISO_REPEATABLE_READ) return "Repeatable Read";
+		else if(iso_level == ISO_SERIALIZABLE) return "Serializable";
+		else return "Serializable";
+		
+	}
+	
+	public String getEndByInt(int end) {
+		// TODO Auto-generated method stub
+		System.out.println("Setting ending for transaction to: " + end);
+		
+			if(end == COMMIT) return "Commit";
+			else if(end == ROLLBACK) return "Rollback";
+			else return "Commit";
+	}
+	
+	
 }
