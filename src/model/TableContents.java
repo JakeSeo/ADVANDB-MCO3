@@ -7,6 +7,15 @@ import com.sun.rowset.CachedRowSetImpl;
 
 public class TableContents implements Serializable {
 	private String transactionName;
+        private String transType;
+
+    public String getTransType() {
+        return transType;
+    }
+
+    public void setTransType(String transType) {
+        this.transType = transType;
+    }
 	private CachedRowSetImpl data;
 	private String[] columnNames;
 
