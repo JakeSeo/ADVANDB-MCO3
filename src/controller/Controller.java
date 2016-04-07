@@ -187,7 +187,10 @@ public class Controller {
 			transactions.get(getTransactionWithName(st.getName())).setAC();
 
 			if(t.getEndByInt((transactions.get(getTransactionWithName(st.getName())).getEnd())).equalsIgnoreCase("Commit"))
-			transactions.get(getTransactionWithName(st.getName())).commit();
+			{
+				transactions.get(getTransactionWithName(st.getName())).commit();
+				
+			}
 			else transactions.get(getTransactionWithName(st.getName())).rollback();
 			
 			transactions.remove(getTransactionWithName(st.getName()));
