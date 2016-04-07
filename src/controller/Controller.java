@@ -325,6 +325,7 @@ public class Controller {
             {
                 t.setTransType("U");
                 Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
+                transactions.add(transaction);
                 System.out.println("SEND UPDATE REQUEST");
                 TransactionThread tt = new TransactionThread(transaction, this, ip, cb);
 				new Thread(tt).start();  
