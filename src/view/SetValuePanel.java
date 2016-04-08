@@ -26,7 +26,7 @@ public class SetValuePanel extends JPanel implements ActionListener
 	private JLabel labelArrow;
 	private JTextField textfieldInput;
 	
-	private String[] columns = { "hpq_hh_id", "id", "crop_line", "croptype", "croptype_o", "crop_vol" };
+	private String[] columns =  { "crop_line", "croptype", "croptype_o", "crop_vol" };
 	
 	private TransactionPanel transactionPanel;
 	

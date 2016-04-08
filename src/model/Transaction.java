@@ -88,8 +88,6 @@ public class Transaction implements Serializable{
 	}
 	
 	public void setIsolationLevel(String iso_level) {
-		// TODO Auto-generated method stub
-		System.out.println("Setting isolation level for transaction 1 to: " + iso_level);
 		
 			try{
 				switch(iso_level) {
@@ -116,8 +114,6 @@ public class Transaction implements Serializable{
 	}
 	
 	public void setEnding(String ending) {
-		// TODO Auto-generated method stub
-		System.out.println("Setting ending for transaction to: " + ending);
 		
 			switch(ending) {
 			case "Commit": end = COMMIT;
@@ -129,7 +125,7 @@ public class Transaction implements Serializable{
 			}	
 	}
 	
-	public void endTransaction()
+	/*public void endTransaction()
 	{
 		try
 		{
@@ -143,17 +139,17 @@ public class Transaction implements Serializable{
 			e.printStackTrace();
 		}
 
-	}
+	}*/
 	
 	public void commit()
 	{
+		System.out.println("Commit in T " + getName());
 		try {
 			conn.commit();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		unlockTable();
 	}
 	
 	public void rollback()
@@ -164,7 +160,6 @@ public class Transaction implements Serializable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		unlockTable();
 	}
 	
 	public void beginTransaction() {
@@ -242,7 +237,6 @@ public class Transaction implements Serializable{
 	                    break;
 	            }
 	            tc = new TableContents(transactionName, columnNames, cs);
-	            System.out.println("DONE EXECUTING TRANS in getdata  " + query);
 	            return tc;
 	        } catch (SQLException e) {
 	            e.printStackTrace();
@@ -278,13 +272,10 @@ public class Transaction implements Serializable{
 	            PreparedStatement statement = (PreparedStatement) conn.prepareStatement(query);
 	            rs = statement.execute();
 
-	            System.out.println("DONE EXECUTING TRANS in updatedata  " + query);
-	            //System.out.println("update WHERE query is " + q.substring(q.indexOf("WHERE"), q.length()));
-	            String newquery = "SELECT * FROM "
+	           String newquery = "SELECT * FROM "
 	    	    				+ q.substring(q.indexOf("UPDATE")+7, q.indexOf("SET"))
 	    	    				+ " WHERE "
 	    	    				+ q.substring(q.indexOf("SET")+4, q.indexOf("WHERE")) + ";";
-	            System.out.println(newquery);
 	            return newquery;
 	            //return q.substring(q.indexOf("WHERE"), q.length());
 	        } catch (SQLException e) {
@@ -331,8 +322,6 @@ public class Transaction implements Serializable{
 	
 	
 	public String getISObyInt(int iso_level) {
-		// TODO Auto-generated method stub
-		System.out.println("Setting string isolation level for transaction 1 to: " + iso_level);
 		
 		if(iso_level == ISO_READ_UNCOMMITTED) return "Read Uncommitted";
 		else if(iso_level == ISO_READ_COMMITTED) return "Read Committed";
@@ -343,8 +332,6 @@ public class Transaction implements Serializable{
 	}
 	
 	public String getEndByInt(int end) {
-		// TODO Auto-generated method stub
-		System.out.println("Setting ending for transaction to: " + end);
 		
 			if(end == COMMIT) return "Commit";
 			else if(end == ROLLBACK) return "Rollback";

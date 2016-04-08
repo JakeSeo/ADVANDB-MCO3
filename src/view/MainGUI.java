@@ -227,16 +227,15 @@ public class MainGUI extends JFrame implements ActionListener, KeyListener, List
 		{
 			getSelectedIndexes();
             controller.setCyclicBarrierSize(selectedTransactions.size());
-            System.out.println("Transactions: " + selectedTransactions.size());
 			for( int i = 0; i < selectedTransactions.size(); i++ )
 			{
 				String name = ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(selectedTransactions.get(i))).getTransactionName();
-			    System.out.println("Index: " + name);
 				String query = ((TransactionPanel) tabbedpaneTransactionPanel.getComponent(selectedTransactions.get(i))).getQuery();
 				String database = ((TransactionPanel)tabbedpaneTransactionPanel.getComponent(selectedTransactions.get(i))).getDatabase();
 				String isolvl = ((TransactionPanel)tabbedpaneTransactionPanel.getComponent(selectedTransactions.get(i))).getIsolationLevel();
 				String queryAction = ((TransactionPanel)tabbedpaneTransactionPanel.getComponent(selectedTransactions.get(i))).getQueryAction();
 				
+//				controller.setCB(selectedTransactions.size());
 				controller.sendTransaction(name, query, database, isolvl, queryAction);
 			}
 		}

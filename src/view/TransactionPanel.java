@@ -87,6 +87,7 @@ public class TransactionPanel extends JPanel implements ActionListener
 		labelQueryRuntime = new JLabel("Query Runtime: ");
 		labelQueryRuntime.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		labelQueryRuntime.setBounds(868, 11, 377, 26);
+		labelQueryRuntime.setVisible(false);
 		this.add(labelQueryRuntime);
 		
 		defaultTableModel = new DefaultTableModel();
@@ -256,7 +257,6 @@ public class TransactionPanel extends JPanel implements ActionListener
 		
 		query += groupby + ";";
 		
-		System.out.println("Query READ: " + query);
 			
 		return query;
 	}
@@ -268,7 +268,6 @@ public class TransactionPanel extends JPanel implements ActionListener
 		
 		query += getUpdate() + getWhere() + ";";
 		
-		System.out.println("Query WRITE: " + query);
 		
 		return query;
 	}
@@ -391,7 +390,6 @@ public class TransactionPanel extends JPanel implements ActionListener
 		{
 			type = controller.getType();
 		}
-		System.out.println(type);
 		
 		if( type.equalsIgnoreCase("Central") )
 		{

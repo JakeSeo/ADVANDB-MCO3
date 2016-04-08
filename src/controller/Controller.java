@@ -65,7 +65,6 @@ public class Controller {
                 sock.close();
             } catch (IOException ex) {
                 System.out.println("Failed to Connect to a node");
-                ex.printStackTrace();
                 return false;
             }
             return true;
@@ -149,7 +148,6 @@ public class Controller {
 	}*/
 
 	public void commit(String senderIp, byte[] bytes) {
-		System.out.println("Receive Commit (start)");
 
 		try {
 			byte[] mybytearray = new byte[655000]; // Creates a byte array
@@ -170,36 +168,30 @@ public class Controller {
 																			// bytes
 																			// read
 
-			System.out.println("writeFile (bytes received: " + bytesRead + ")");
-
 			SerializableTransaction st = (SerializableTransaction) deserialize(mybytearray);
-			Transaction t = new Transaction(st.getName(), st.getQuery(), st.getIsolationLvl(), st.getEnd(), st.getDatabase(), st.getTransType());
-
-			System.out.println("Received from " + senderIp);
-			System.out.println("Transaction Name " + transactions.get(transactions.size() - 1).getName());
-			System.out.println("Transaction Iso Level " + transactions.get(transactions.size() - 1).getIsolationLvl());
-			System.out.println("Transaction End " + transactions.get(transactions.size() - 1).getEnd());
-			System.out.println("Transaction Query " + transactions.get(transactions.size() - 1).getQuery());
-			System.out.println("Transaction Database " + transactions.get(transactions.size() - 1).getDatabase());
-			System.out.println("Transaction Type " + transactions.get(transactions.size() - 1).getTransType());
-
+			//Transaction t = new Transaction(st.getName(), st.getQuery(), st.getIsolationLvl(), st.getEnd(), st.getDatabase(), st.getTransType());
+			
 			
 			transactions.get(getTransactionWithName(st.getName())).setAC();
 
-			if(t.getEndByInt((transactions.get(getTransactionWithName(st.getName())).getEnd())).equalsIgnoreCase("Commit"))
+			if(st.getEnd().equalsIgnoreCase("Commit"))
 			{
+				System.out.println("committed " + st.getName());
+				transactions.get(getTransactionWithName(st.getName())).unlockTable();
 				transactions.get(getTransactionWithName(st.getName())).commit();
 				
 			}
-			else transactions.get(getTransactionWithName(st.getName())).rollback();
+			else
+			{
+				transactions.get(getTransactionWithName(st.getName())).rollback();
+				transactions.get(getTransactionWithName(st.getName())).unlockTable();
+			}
 			
 			transactions.remove(getTransactionWithName(st.getName()));
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		System.out.println("Receive Transaction (end)");
 	}
 
 	public void queryLocally(Transaction t) {
@@ -220,7 +212,64 @@ public class Controller {
 		Socket SOCK;
 		String ip = null;
 		SerializableTransaction sertrans = new SerializableTransaction(t.getName(), t.getQuery(), t.getISObyInt(t.getIsolationLvl()), t.getEndByInt(t.getEnd()), t.getDatabase(), t.getTransType());
-		if(t.getDatabase().equals("Palawan") || t.getDatabase().equals("Marinduque"))
+		
+		if(t.getDatabase().equals("Central"))
+		{
+			ip = palawan.getIpadd();
+			if(isConnected(ip))
+            {
+				try {
+					SOCK = new Socket(ip, Port); // Open socket
+					String first = "\"OKWRITE\" ";
+					byte[] prefix = first.getBytes();
+					byte[] mybytearray = serialize(sertrans);
+					byte[] finalByte = byteConcat(prefix, mybytearray);
+					InputStream is = new ByteArrayInputStream(finalByte);
+					int bytesRead = is.read(mybytearray, 0, mybytearray.length);
+					OutputStream os = SOCK.getOutputStream(); // Get socket output
+																// stream to send
+																// file through //
+					os.write(finalByte, 0, finalByte.length); // Send file bytes
+																// through socket
+					os.flush();
+					SOCK.close();
+				} catch (UnknownHostException e) {
+					System.out.println("Sorry ka wala kang makukuha.");
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+			
+			ip = marin.getIpadd();
+			if(isConnected(ip))
+            {
+				try {
+					SOCK = new Socket(ip, Port); // Open socket
+					String first = "\"OKWRITE\" ";
+					byte[] prefix = first.getBytes();
+					byte[] mybytearray = serialize(sertrans);
+					byte[] finalByte = byteConcat(prefix, mybytearray);
+					InputStream is = new ByteArrayInputStream(finalByte);
+					int bytesRead = is.read(mybytearray, 0, mybytearray.length);
+					OutputStream os = SOCK.getOutputStream(); // Get socket output
+																// stream to send
+																// file through //
+					os.write(finalByte, 0, finalByte.length); // Send file bytes
+																// through socket
+					os.flush();
+					SOCK.close();
+				} catch (UnknownHostException e) {
+					System.out.println("Sorry ka wala kang makukuha.");
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+		}
+		else if(t.getDatabase().equals("Palawan") || t.getDatabase().equals("Marinduque"))
 		{
 			if (t.getDatabase().equals("Palawan")) {
 				ip = palawan.getIpadd();
@@ -329,7 +378,12 @@ public class Controller {
                 t.setTransType("U");
                 Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
                 transactions.add(transaction);
-                System.out.println("SEND UPDATE REQUEST");
+                transactions.get(transactions.size()-1).lockTable("WRITE");
+                if( transaction.getDatabase().equals("Central"))
+                {
+                	transactions.add(transaction);
+                    transactions.get(transactions.size()-1).lockTable("WRITE");
+                }
                 TransactionThread tt = new TransactionThread(transaction, this, ip, cb);
 				new Thread(tt).start();  
             }
@@ -353,12 +407,9 @@ public class Controller {
 					os.flush();
 					SOCK.close();
 				} catch (UnknownHostException e) {
-					System.out.println("Sorry ka wala kang makukuha.");
 					e.printStackTrace();
 				} catch(SocketException ex)
 	                {
-	                    //ex.printStackTrace();
-	                    System.out.println("CENTRAL IS DOWN");
 	                    
 	                } catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -373,7 +424,6 @@ public class Controller {
 				|| type.equals("Palawan") && database.equals("Palawan"))
 			{
 				t.setTransType("L");
-				System.out.println(t.toString()); // query locally here.
                 Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
 				TransactionThread tt = new TransactionThread(transaction, this, ip, cb);
 				new Thread(tt).start();
@@ -413,7 +463,6 @@ public class Controller {
 					os.flush();
 					SOCK.close();
 				} catch (UnknownHostException e) {
-					System.out.println("Sorry ka wala kang makukuha.");
 					e.printStackTrace();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -426,7 +475,6 @@ public class Controller {
 			else if ((type.equals("Marinduque") || type.equals("Palawan")) && database.equals("Central")) {
 				t.setTransType("G");
 				Socket SOCK;
-				System.out.println("Central's IP " + central.getIpadd());
 				String ip = central.getIpadd();
                 //Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
                 if(isConnected(ip))
@@ -495,7 +543,51 @@ public class Controller {
 					e.printStackTrace();
 				}
               }
-				
+                else
+                {
+                	t.setTransType("R");
+                    if (type.equals("Palawan")) {
+                            ip = marin.getIpadd();
+                    } else {
+                            ip = palawan.getIpadd();
+                    }
+                    
+                    if(isConnected(ip))
+                    {
+                        Transaction transaction = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
+    					queryLocally(transaction);
+    					// do the get from the other side here and merge
+                        if(isConnected(ip))
+                        {
+    					try {
+    						SOCK = new Socket(ip, Port); // Open socket
+    						String first = "\"TRANSACTION\" ";
+    						byte[] prefix = first.getBytes();
+    						byte[] mybytearray = serialize(t);
+    						byte[] finalByte = byteConcat(prefix, mybytearray);
+    						InputStream is = new ByteArrayInputStream(finalByte);
+    						int bytesRead = is.read(mybytearray, 0, mybytearray.length);
+    						OutputStream os = SOCK.getOutputStream(); // Get socket
+    																	// output
+    																	// stream to
+    																	// send
+    																	// file
+    																	// through
+    																	// //
+    						os.write(finalByte, 0, finalByte.length); // Send file
+    																	// bytes
+    																	// through
+    																	// socket
+    						os.flush();
+    						SOCK.close();
+    					} catch (UnknownHostException ex) {
+    						ex.printStackTrace();
+    					} catch (IOException ex) {
+    						System.out.println("CENTRAL IS DOWN");
+    					}
+                      }
+                    }
+                }
 			}
 		}
 		/*
@@ -534,9 +626,6 @@ public class Controller {
 	}
 
 	public void receiveTransaction(String senderIp, byte[] bytes) {
-		// Receive Transaction then send the result(TableContents) back to the
-		// sender
-		System.out.println("Receive Transaction (start)");
 
 		try {
 			byte[] mybytearray = new byte[655000]; // Creates a byte array
@@ -557,21 +646,9 @@ public class Controller {
 																			// bytes
 																			// read
 
-			System.out.println("writeFile (bytes received: " + bytesRead + ")");
-
 			SerializableTransaction t = (SerializableTransaction) deserialize(mybytearray);
 			Transaction trans = new Transaction(t.getName(), t.getQuery(), t.getIsolationLvl(), t.getEnd(), t.getDatabase(), t.getTransType());
 			transactions.add(trans);
-
-			System.out.println("Received from " + senderIp);
-			System.out.println("Transaction Name " + transactions.get(transactions.size() - 1).getName());
-			System.out.println("Transaction Iso Level " + transactions.get(transactions.size() - 1).getIsolationLvl());
-			System.out.println("Transaction End " + transactions.get(transactions.size() - 1).getEnd());
-			System.out.println("Transaction Query " + transactions.get(transactions.size() - 1).getQuery());
-			System.out.println("Transaction Database " + transactions.get(transactions.size() - 1).getDatabase());
-			System.out.println("Transaction Type " + transactions.get(transactions.size() - 1).getTransType());
-
-			System.out.println("");
             executeQuery(trans, senderIp);
                         
 
@@ -584,13 +661,11 @@ public class Controller {
 			e.printStackTrace();
 		}
 
-		System.out.println("Receive Transaction (end)");
 
 	}
 
 	public void sendTableContents(TableContents tc, String transactiontype, String ip) {
 		// Send the tablecontents of the transactionName to the ip
-		System.out.println("sendTC (start)");
 		if (!ip.equals(this.ip)) {
 			try {
 				Socket SOCK; // Open socket
@@ -626,7 +701,6 @@ public class Controller {
 				os.flush();
 				SOCK.close(); // Close socket
 
-				System.out.println("sendTC (bytes sent to " + ip + ": " + bytesRead + ")");
                                 }
 				
 			} catch (UnknownHostException e) {
@@ -637,15 +711,12 @@ public class Controller {
 				e.printStackTrace();
 			}
 		} else {
-			System.out.println("Pumasok sa else");
 			updateTable(tc, "L");
 		}
 
 	}
 
 	public void receiveTableContents(String senderIp, byte[] bytes) {
-		// Receive tablecontents then update the table
-		System.out.println("Receive TC (start)");
 		try {
 			byte[] mybytearray = new byte[655000]; // Creates a byte array
 			InputStream is = new ByteArrayInputStream(bytes); // Creates an
@@ -665,31 +736,14 @@ public class Controller {
 																			// bytes
 																			// read
 
-			System.out.println("Receive TC (bytes received: " + bytesRead + ")");
                         TableContents tc = (TableContents) deserialize(mybytearray);
-			System.out.println("Table Contents transaction name: " + tc.getTransactionName());
                         String transtype = tc.getTransType();
-			/*
-			 * for(int x = 0; x < tc.getColumnNames().length; x++) {
-			 * System.out.println("Column " + x + ": " +
-			 * tc.getColumnNames()[x]); }
-			 */
-
-			int y = 0;
-			CachedRowSetImpl cas = tc.getData();
-			while (cas.next()) {
-				System.out.println("Data id " + (y + 1) + ": " + cas.getInt(1));
-				System.out.println("Data num 1 " + (y + 1) + ": " + cas.getInt(2));
-				System.out.println("Data num 2 " + (y + 1) + ": " + cas.getInt(3));
-				y++;
-			}
-
+	
+                        
 			updateTable(tc, transtype);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		System.out.println("Receive TC (end)");
 	}
 
 	public void updateTable(TableContents tc, String trans) {
@@ -797,7 +851,6 @@ public class Controller {
 
 	// Returns string cut off at either space, null or eof, depending on c
 	public String getUntilSpaceOrNull(String bytesinstring, char c) {
-		System.out.println("getUntilSpaceOrNull");
 
 		int i = 0; // Character index
 		char[] bytesinchar = bytesinstring.toCharArray(); // String converted to
@@ -826,22 +879,5 @@ public class Controller {
 		// Return cut up string
 		return bytesinstring.substring(0, i);
 	}
-
-	/*
-	 * public String getIPAdd(String name) { if(name.equals("Central")) return
-	 * central.getIpadd(); else if(name.equals("Marinduque")) return
-	 * marin.getIpadd(); else if(name.equals("Palawan")) return
-	 * palawan.getIpadd(); else return central.getIpadd(); }
-	 * 
-	 * public boolean isAlive(String ipAdd) { System.out.println(
-	 * "Gonna check if socket is alive"); Socket SOCK = null; try{ SOCK = new
-	 * Socket(ipAdd, Port); PrintWriter OUT = new
-	 * PrintWriter(SOCK.getOutputStream()); OUT.println(
-	 * "checking if it is alive"); OUT.flush(); SOCK.close(); return true;
-	 * }catch(Exception e) { System.out.println("It is not alive " + e); return
-	 * false; }
-	 * 
-	 * }
-	 */
 
 }

@@ -29,15 +29,15 @@ public class Driver
 				+ str.substring(str.indexOf("SET")+4, str.indexOf("FROM"))
 				);*/
 		
-		Controller con = new Controller("192.168.0.111", "Marinduque");
+		Controller con = new Controller("192.168.1.138", "Palawan");
 		//Controller con = new Controller("10.100.216.69", "Marinduque");
 		//Controller con = new Controller("192.168.1.122", "Palawan");
 		Server SER = new Server(con, PORT);
 		Thread X = new Thread(SER);
 		X.start();	// Runs the server process
 		
-		con.add("192.168.0.107", "Central");
-		con.add("5", "Palawan");
+		con.add("192.168.1.122", "Central");
+		con.add("192.168.1.149", "Marinduque");
 		MainGUI mainGUI = new MainGUI(con);
 		
 		/*Controller con = new Controller("192.168.1.138", "Central");
